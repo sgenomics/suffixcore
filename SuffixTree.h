@@ -208,9 +208,19 @@ public:
     return res;
   }
 
-  vector<int> all_occurs(vector<char> ss,size_t max_hits=-1) {
+  vector<size_t> all_occurs(string ss,size_t max_hits=-1) {
+
+    vector<char> search;
+    for(size_t n=0;n<ss.size();n++) {
+      search.push_back(ss[n]);
+    }
+
+    return all_occurs(search,max_hits);
+  }
+
+  vector<size_t> all_occurs(vector<char> ss,size_t max_hits=-1) {
     //cout << "find all occurs..." << endl;
-    vector<int> res;
+    vector<size_t> res;
 
 //    for(size_t n=0;n<ss.size();n++) ss[n] =  transcoder.convert(ss[n]);
     int p = find_tree_position(ss);
