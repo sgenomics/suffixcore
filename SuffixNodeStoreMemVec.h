@@ -64,6 +64,7 @@ public:
     } else {
       storage_area_real_size += 10000;
       storage_area = (SuffixNode *) realloc(storage_area,storage_area_real_size*(sizeof(SuffixNode)));
+      storage_area[storage_area_size].wipe();
       storage_area[storage_area_size] = s;
       storage_area_size++;
     }
