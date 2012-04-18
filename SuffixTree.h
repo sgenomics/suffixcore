@@ -488,7 +488,7 @@ public:
   }
 
   void finalise() {
-    insert(39,true);
+    insert(final_symbol,true);
   }
 
   void insert(string insertion_string) {
