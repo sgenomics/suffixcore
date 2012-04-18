@@ -3,7 +3,7 @@
  * suffixcore - core suffixtree algorithms
  *
  * A license to use this software is granted to users given access to the git repository at: https://github.com/sgenomics/suffixcore
- * A complete copy of this license is located in the license file of this package.
+ * A complete copy of this license is located in the license.txt file of this package.
  *
  * In Summary this software:
  *
