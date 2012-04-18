@@ -308,6 +308,10 @@ public:
     copy_children(other);
   }
 
+  void wipe() {
+    m_symbols =0;
+    m_symbols_size=0;
+  }
 
   SymbolPair *m_symbols;
   char        m_symbols_size;

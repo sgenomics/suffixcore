@@ -58,6 +58,7 @@ public:
     //storage_area.push_back(s);
 
     if(storage_area_real_size > storage_area_size) {
+      storage_area[storage_area_size].wipe();
       storage_area[storage_area_size] = s;
       storage_area_size++;
     } else {
