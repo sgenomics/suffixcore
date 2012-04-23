@@ -200,7 +200,7 @@ public:
         m_symbols[child].index = m;
       } else {
         // index for -1 means erase the entry.
-        for(size_t i=child;i<(m_symbols_size-1);i++) {
+        for(size_t i=child;i<((size_t)m_symbols_size-1);i++) {
           m_symbols[i] = m_symbols[i+1];
         }
         m_symbols_size--;

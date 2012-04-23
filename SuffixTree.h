@@ -86,8 +86,6 @@ public:
 
     vector<uint32_t> unlabeled_left;
 
-    bool is_first_child = true;
-
     uint32_t current_right_most = root_node;
     uint32_t last_right         = root_node;
     for(;;) {
@@ -463,7 +461,7 @@ public:
 	  return insertion_point;
 	}
 
-	int l = insertion_point_tmp.get_label_length_r();
+	//int l = insertion_point_tmp.get_label_length_r();
    
 	if(insertion_point_tmp.is_leaf()) {
 	  cout << "WTF it's a leaf?!?" << endl;
