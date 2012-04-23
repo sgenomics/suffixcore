@@ -306,6 +306,7 @@ public:
     depth           = other.depth;
 
     copy_children(other);
+    return *this;
   }
 
   void wipe() {
@@ -314,7 +315,7 @@ public:
   }
 
   SymbolPair *m_symbols;
-  char        m_symbols_size;
+  unsigned char m_symbols_size;
 
   int32_t parent;
   int32_t label_start;
