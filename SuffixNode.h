@@ -42,12 +42,12 @@ class SuffixNode {
 public:
 
   SuffixNode() {
-    label_start     = -1;
-    label_end       = -1;
-    next_left_leaf  = -1;
-    next_right_leaf = -1;
-    depth           = -1;
-    parent          = -1;
+    set_label_start     (-1);
+    set_label_end       (-1);
+    set_next_left_leaf  (-1);
+    set_next_right_leaf (-1);
+    set_depth           (-1);
+    set_parent          (-1);
     m_symbols = 0;
     m_symbols_size = 0;
   }
@@ -63,15 +63,19 @@ public:
     clear_children();
   }
 
-  SuffixNode(int parent_in,int label_start_in,int depth_in) : parent(parent_in),label_start(label_start_in), depth(depth_in) {
+  SuffixNode(int parent_in,int32_t label_start_in,int32_t depth_in) {
 
-    suffix_link = 0;
+    set_parent(parent_in);
+    set_label_start(label_start_in);
+    set_depth_raw(depth_in);
+
+    set_suffix_link(0);
     m_symbols = 0;
     m_symbols_size = 0;
 
-    label_end       = -1;
-    next_left_leaf  = -1;
-    next_right_leaf = -1;
+    set_label_end       (-1);
+    set_next_left_leaf  (-1);
+    set_next_right_leaf (-1);
   }
 
   bool is_leaf() {
@@ -80,23 +84,23 @@ public:
   }
 
   int get_label_length() {
-    if(label_start == -1) return 0;
+    if(get_label_start() == -1) return 0;
 
-    if(label_end == end_marker) {
-      return end_marker_value-label_end; // THIS IS WRONG BUT SOMETHING NEEDS IT ARGH!
+    if(get_label_end() == end_marker) {
+      return end_marker_value-get_label_end(); 
     }
 
-    return label_end-label_start;
+    return get_label_end()-get_label_start();
   }
 
   int get_label_length_r() {
-    if(label_start == -1) return 0;
+    if(get_label_start() == -1) return 0;
 
-    if(label_end == end_marker) {
-      return end_marker_value-label_start; 
+    if(get_label_end() == end_marker) {
+      return end_marker_value-get_label_start(); 
     }
 
-    return label_end-label_start;
+    return get_label_end()-get_label_start();
   }
 
   void clear_children() {
@@ -232,19 +236,19 @@ public:
   }
 
   bool equal(SuffixNode &other,bool dump=false) {
-    if(parent          != other.parent     )    { if(dump)  cout << "parent match failure" << endl;          return false; }
-    if(label_start     != other.label_start)    { if(dump)  cout << "label_start match failure" << endl;     return false; }
-    if(label_end       != other.label_end  )    { if(dump)  cout << "label_end match failure mine: " << label_end << " other: " << other.label_end << endl; return false; }
+    if(get_parent()          != other.get_parent()     )    { if(dump)  cout << "parent match failure" << endl;          return false; }
+    if(get_label_start()     != other.get_label_start())    { if(dump)  cout << "label_start match failure" << endl;     return false; }
+    if(get_label_end()       != other.get_label_end()  )    { if(dump)  cout << "label_end match failure mine: " << get_label_end() << " other: " << other.get_label_end() << endl; return false; }
 // if(m_children != 0)   if((m_children->equal(*(other.m_children),dump) == false))    { if(dump)  cout << "children match failure" << endl; return false; }
 
     if(m_symbols_size  != other.m_symbols_size) { if(dump)  cout << "children match failure" << endl; return false; }
     for(size_t n=0;n<m_symbols_size;n++) { if(m_symbols[n].index != other.m_symbols[n].index) {if(dump)  cout << "children match failure" << endl; return false; }    }
     for(size_t n=0;n<m_symbols_size;n++) { if(m_symbols[n].symbol != other.m_symbols[n].symbol) {if(dump)  cout << "children match failure" << endl; return false; }    }
 
-    if(suffix_link     != other.suffix_link)    { if(dump)  cout << "suffix_link match failure" << endl;     return false; }
-    if(next_left_leaf  != other.next_left_leaf) { if(dump)  cout << "next_left_leaf match failure" << endl;  return false; }
-    if(next_right_leaf != other.next_right_leaf){ if(dump)  cout << "next_right_leaf match failure" << endl; return false; }
-    if(depth           != other.depth)          { if(dump)  cout << "depth match failure" << endl;           return false; }
+    if(get_suffix_link()     != other.get_suffix_link())    { if(dump)  cout << "suffix_link match failure" << endl;     return false; }
+    if(get_next_left_leaf()  != other.get_next_left_leaf()) { if(dump)  cout << "next_left_leaf match failure" << endl;  return false; }
+    if(get_next_right_leaf() != other.get_next_right_leaf()){ if(dump)  cout << "next_right_leaf match failure" << endl; return false; }
+    if(get_depth_raw()       != other.get_depth_raw())      { if(dump)  cout << "depth match failure" << endl;           return false; }
 
     if(dump) cout << "suffixnodes identical" << endl;
     return true;
@@ -252,13 +256,13 @@ public:
 
   void dump() {
     cout << "SuffixNode" << endl;
-    cout << "parent         : " << parent << endl;
-    cout << "label_start    : " << label_start << endl;
-    cout << "label_end      : " << label_end << endl;
-    cout << "suffix_link    : " << suffix_link << endl;
-    cout << "next_left_leaf : " << next_left_leaf << endl;
-    cout << "next_right_leaf: " << next_right_leaf << endl;
-    cout << "depth          : " << depth << endl;
+    cout << "parent         : " << get_parent() << endl;
+    cout << "label_start    : " << get_label_start() << endl;
+    cout << "label_end      : " << get_label_end() << endl;
+    cout << "suffix_link    : " << get_suffix_link() << endl;
+    cout << "next_left_leaf : " << get_next_left_leaf() << endl;
+    cout << "next_right_leaf: " << get_next_right_leaf() << endl;
+    cout << "depth          : " << get_depth_raw() << endl;
     cout << "children      : ";
     for(size_t n=0;n<m_symbols_size;n++) cout << (int) m_symbols[n].symbol << "," << m_symbols[n].index << " ";
     cout << endl;
@@ -279,13 +283,13 @@ public:
   }
 
   SuffixNode &operator=(const SuffixNode &other) {
-    parent          = other.parent;
-    label_start     = other.label_start;
-    label_end       = other.label_end;
-    suffix_link     = other.suffix_link;
-    next_left_leaf  = other.next_left_leaf;
-    next_right_leaf = other.next_right_leaf;
-    depth           = other.depth;
+    set_parent          (other.get_parent());
+    set_label_start     (other.get_label_start());
+    set_label_end       (other.get_label_end());
+    set_suffix_link     (other.get_suffix_link());
+    set_next_left_leaf  (other.get_next_left_leaf());
+    set_next_right_leaf (other.get_next_right_leaf());
+    set_depth_raw       (other.get_depth_raw());
 
     copy_children(other);
     return *this;
@@ -297,83 +301,91 @@ public:
   }
 
   int32_t get_label_end_translated() {
-    if(label_end == end_marker) {
+    if(get_label_end() == end_marker) {
       return end_marker_value;
     }
-    return label_end;
+    return get_label_end();
   }
 
 // accessors
 public:
-  int32_t get_depth() {
-    if(label_start == -1) return 0;
-    if(label_end   == -1) return depth + (end_marker_value-label_start)+1;
-    return depth;
+  int32_t get_depth_raw() const {
+    return m_depth;
+  }
+
+  void set_depth_raw(int32_t depth_in) {
+    m_depth = depth_in;
+  }
+
+  int32_t get_depth() const {
+    if(get_label_start() == -1) return 0;
+    if(get_label_end()   == -1) return m_depth + (end_marker_value-get_label_start())+1;
+    return m_depth;
   }
 
   void set_depth(int32_t depth_in) {
-    depth = depth_in;
+    m_depth = depth_in;
   }
 
-  int32_t get_parent() {
-    return parent;
+  int32_t get_parent() const {
+    return m_parent;
   }
 
   void set_parent(int32_t parent_in) {
-    parent = parent_in;
+    m_parent = parent_in;
   }
 
-  int32_t get_suffix_link() {
-    return suffix_link;
+  int32_t get_suffix_link() const {
+    return m_suffix_link;
   }
   
   void set_suffix_link(int32_t suffix_link_in) {
-    suffix_link = suffix_link_in;
+    m_suffix_link = suffix_link_in;
   }
 
-  int32_t get_label_start() {
-    return label_start;
+  int32_t get_label_start() const {
+    return m_label_start;
   }
 
   void set_label_start(int32_t label_start_in) {
-    label_start = label_start_in;
+    m_label_start = label_start_in;
   }
 
-  int32_t get_label_end() {
-    return label_end;
+  int32_t get_label_end() const {
+    return m_label_end;
   }
 
   void set_label_end(int32_t label_end_in) {
-    label_end = label_end_in;
+    m_label_end = label_end_in;
   }
 
-  int32_t get_next_left_leaf() {
-    return next_left_leaf;
+  int32_t get_next_left_leaf() const {
+    return m_next_left_leaf;
   }
 
   void set_next_left_leaf(int32_t next_left_leaf_in) {
-    next_left_leaf = next_left_leaf_in;
+    m_next_left_leaf = next_left_leaf_in;
   }
 
-  int32_t get_next_right_leaf() {
-    return next_right_leaf;
+  int32_t get_next_right_leaf() const {
+    return m_next_right_leaf;
   }
 
   void set_next_right_leaf(int32_t next_right_leaf_in) {
-    next_right_leaf = next_right_leaf_in;
+    m_next_right_leaf = next_right_leaf_in;
   }
 
 private:
   SymbolPair *m_symbols;
   unsigned char m_symbols_size;
 
-  int32_t depth;
-  int32_t parent;
-  int32_t suffix_link;
-  int32_t label_start;
-  int32_t label_end  ;
-  int32_t next_left_leaf;
-  int32_t next_right_leaf;
+  int32_t m_depth;
+  int32_t m_parent;
+  int32_t m_suffix_link;
+  int32_t m_label_start;
+  int32_t m_label_end  ;
+  int32_t m_next_left_leaf;
+  int32_t m_next_right_leaf;
 
 public:
   static int32_t end_marker;
