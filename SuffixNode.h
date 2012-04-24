@@ -139,32 +139,14 @@ public:
     return -1;
   }
 
-  int get_depth() {
-    if(label_start == -1) return 0;
-    if(label_end   == -1) return depth + (end_marker_value-label_start)+1;
-    return depth;
-  }
 
-  void set_depth(int depth_in) {
-    depth = depth_in;
-  }
-
-  int child_count() {
+  int32_t child_count() {
     return m_symbols_size;
   }
 
-  int get_parent() {
-    return parent;
-  }
   
-  int get_label_end() {
-    if(label_end == end_marker) {
-      return end_marker_value;
-    }
-    return label_end;
-  }
 
-  int get_child(uint8_t symbol) {
+  int32_t get_child(uint8_t symbol) {
     if(m_symbols_size == 0) return -1;
 
     for(int n=0;n<m_symbols_size;n++) {
@@ -173,7 +155,7 @@ public:
     return -1;
   }
 
-  int child_local_idx(uint8_t symbol) {
+  int32_t child_local_idx(uint8_t symbol) {
     for(size_t n=0;n<m_symbols_size;n++) {
       if(m_symbols[n].symbol == symbol) return n;
     }
@@ -200,7 +182,7 @@ public:
         m_symbols[child].index = m;
       } else {
         // index for -1 means erase the entry.
-        for(size_t i=child;i<(m_symbols_size-1);i++) {
+        for(size_t i=child;i<((size_t)m_symbols_size-1);i++) {
           m_symbols[i] = m_symbols[i+1];
         }
         m_symbols_size--;
@@ -314,18 +296,86 @@ public:
     m_symbols_size=0;
   }
 
+  int32_t get_label_end_translated() {
+    if(label_end == end_marker) {
+      return end_marker_value;
+    }
+    return label_end;
+  }
+
+// accessors
+public:
+  int32_t get_depth() {
+    if(label_start == -1) return 0;
+    if(label_end   == -1) return depth + (end_marker_value-label_start)+1;
+    return depth;
+  }
+
+  void set_depth(int32_t depth_in) {
+    depth = depth_in;
+  }
+
+  int32_t get_parent() {
+    return parent;
+  }
+
+  void set_parent(int32_t parent_in) {
+    parent = parent_in;
+  }
+
+  int32_t get_suffix_link() {
+    return suffix_link;
+  }
+  
+  void set_suffix_link(int32_t suffix_link_in) {
+    suffix_link = suffix_link_in;
+  }
+
+  int32_t get_label_start() {
+    return label_start;
+  }
+
+  void set_label_start(int32_t label_start_in) {
+    label_start = label_start_in;
+  }
+
+  int32_t get_label_end() {
+    return label_end;
+  }
+
+  void set_label_end(int32_t label_end_in) {
+    label_end = label_end_in;
+  }
+
+  int32_t get_next_left_leaf() {
+    return next_left_leaf;
+  }
+
+  void set_next_left_leaf(int32_t next_left_leaf_in) {
+    next_left_leaf = next_left_leaf_in;
+  }
+
+  int32_t get_next_right_leaf() {
+    return next_right_leaf;
+  }
+
+  void set_next_right_leaf(int32_t next_right_leaf_in) {
+    next_right_leaf = next_right_leaf_in;
+  }
+
+private:
   SymbolPair *m_symbols;
   unsigned char m_symbols_size;
 
+  int32_t depth;
   int32_t parent;
+  int32_t suffix_link;
   int32_t label_start;
   int32_t label_end  ;
-  //ChildStore *m_children;
-  int32_t suffix_link;
   int32_t next_left_leaf;
   int32_t next_right_leaf;
-  int32_t depth;
 
+public:
   static int32_t end_marker;
   static int32_t end_marker_value;
   static int32_t root;

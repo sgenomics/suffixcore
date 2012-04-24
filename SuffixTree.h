@@ -86,8 +86,6 @@ public:
 
     vector<uint32_t> unlabeled_left;
 
-    bool is_first_child = true;
-
     uint32_t current_right_most = root_node;
     uint32_t last_right         = root_node;
     for(;;) {
@@ -175,7 +173,7 @@ public:
     for(;search_string_position < ss.size();) {
       suffixnode_t current_node_tmp = store.get(current_node);
       // follow edge label
-      for(int position=current_node_tmp.label_start;position <= current_node_tmp.get_label_end();position++) {
+      for(int position=current_node_tmp.label_start;position <= current_node_tmp.get_label_end_translated();position++) {
         if(s[position] != ss[search_string_position]) {return -1;}
         else {
           search_string_position++;
@@ -286,7 +284,7 @@ public:
       // follow edge label
 
       suffixnode_t current_node_tmp = store.get(current_node);
-      for(int position=current_node_tmp.label_start;position <= current_node_tmp.get_label_end();position++) {
+      for(int position=current_node_tmp.label_start;position <= current_node_tmp.get_label_end_translated();position++) {
         if(s[position] != t[search_string_position]) { return -1; }
         else {
           search_string_position++;
@@ -463,7 +461,7 @@ public:
 	  return insertion_point;
 	}
 
-	int l = insertion_point_tmp.get_label_length_r();
+	//int l = insertion_point_tmp.get_label_length_r();
    
 	if(insertion_point_tmp.is_leaf()) {
 	  cout << "WTF it's a leaf?!?" << endl;
@@ -671,11 +669,11 @@ public:
     cout << "label: " << n_tmp.label_start << " ";
     if(n_tmp.label_end == SuffixNode::end_marker) cout << n_tmp.label_end << "(" << SuffixNode::end_marker_value << ")" << endl;
                                                   else cout << n_tmp.label_end << endl;
-    cout << "suffix_link    : " << n_tmp.suffix_link    << endl;
-    cout << "parent         : " << n_tmp.parent         << endl;
-    cout << "depth          : " << n_tmp.depth          << endl;
-    cout << "next_left_leaf : " << n_tmp.next_left_leaf << endl;
-    cout << "next_right_leaf: " << n_tmp.next_right_leaf << endl;
+   // cout << "suffix_link    : " << n_tmp.suffix_link    << endl;
+   // cout << "parent         : " << n_tmp.parent         << endl;
+   // cout << "depth          : " << n_tmp.depth          << endl;
+   // cout << "next_left_leaf : " << n_tmp.next_left_leaf << endl;
+   // cout << "next_right_leaf: " << n_tmp.next_right_leaf << endl;
 
     bool has_child=false;
     for(int i=0;i<symbol_size;i++) {
@@ -707,7 +705,7 @@ public:
 
       suffixnode_t parentsn_tmp = store.get(parents[n]);
       int start = parentsn_tmp.label_start;
-      int end   = parentsn_tmp.get_label_end();
+      int end   = parentsn_tmp.get_label_end_translated();
       for(int i=start;i<=end;i++) {
         my_path_label += s[i];
       }
@@ -720,7 +718,7 @@ public:
 
     suffixnode_t n_tmp = store.get(n);
     int start = n_tmp.label_start;
-    int end   = n_tmp.get_label_end();
+    int end   = n_tmp.get_label_end_translated();
     string my_path_label;
     for(int i=start;i<=end;i++) {
       my_path_label += s[i];
