@@ -62,6 +62,7 @@ void test_suffixnode(UnitTest &utf) {
   s1.set_child(7,5);
   s1.set_child(3,4);
 
+
   SuffixNode s2;
   s2.copy_children(s);
   utf.test_equality(s2.get_child(1),8);
@@ -69,6 +70,7 @@ void test_suffixnode(UnitTest &utf) {
   utf.test_equality(s2.get_child(3),4);
   utf.test_equality(s2.get_child(7),6);
   utf.test_equality(s2.get_child(5),-1);
+
 
   SuffixNode s3;
   utf.test_equality(s3.is_leaf(),true);
@@ -79,7 +81,6 @@ void test_suffixnode(UnitTest &utf) {
   utf.test_equality(s3.child_count(),0);
 
   utf.test_equality(s.is_child(5),true);
-
 
 
   SuffixNode s4;
@@ -102,9 +103,14 @@ void test_suffixnode(UnitTest &utf) {
   utf.test_equality(s4.get_last_child(),4);
   utf.test_equality(s4.child_count(),3);
 
+
   SuffixNode s5;
   s5.set_child(5,-1);
   utf.test_equality(s5.child_count(),0);
+
+  SuffixNode s6;
+  s6.set_label_start(5);
+  utf.test_equality(s6.get_label_start(),5);
 
   utf.end_test_set();
 }

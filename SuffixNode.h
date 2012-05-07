@@ -64,6 +64,7 @@ public:
 
   SuffixNode() {
     data = 0;
+    resize_for_symbols(0);
   }
 
   SuffixNode(const SuffixNode& other) {
@@ -97,7 +98,8 @@ public:
 
   ~SuffixNode() {
     // TODO: fix delete
-    //tialloc.free(data);
+    if(data != 0) tialloc::instance()->free(data);
+    data = 0;
   }
 
   bool is_leaf() const {
@@ -342,11 +344,13 @@ public:
 
   int32_t get_label_end() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_end;
+    if(get_data_type() == 2) cout << "TRIED TO READ END ON ENDNODE" << endl;
     // something clever for end_node?
   }
 
   void set_label_end(int32_t label_end_in) {
-    if(get_data_type() == 2) ((normal_node_data *)data)->m_label_end = label_end_in;
+    if(get_data_type() == 1) ((normal_node_data *)data)->m_label_end = label_end_in;
+    if(get_data_type() == 2) cout << "TRIED TO SET END ON ENDNODE" << endl;
     // something clever for end_node?
   }
 
@@ -372,12 +376,12 @@ public:
 
   // Symbols access
   void wipe() {
-    data = 0; // hmmmm
+    data = 0; // if the object wasn't properly constructed, wipe the data.
   }
 
   void clear_children() {
     resize_for_symbols(0);
-    set_symbols_size (0);
+    set_symbols_size  (0);
   }
 
   int32_t get_symbols_size() const {
@@ -403,6 +407,7 @@ public:
 
     if(other.get_symbols_size() != get_symbols_size()) {
       resize_for_symbols(other.get_symbols_size());
+      set_symbols_size(other.get_symbols_size());
     }
 
     for(size_t n=0;n<other.get_symbols_size();n++) {
@@ -444,6 +449,7 @@ public:
       #else
       data = realloc(data,alloc_size);
       #endif
+
 
       if((new_symbol_size != 0) && (old_symbol_size == 0)) reformat_endnode_to_normalnode();
       if((new_symbol_size == 0) && (old_symbol_size != 0)) reformat_normalnode_to_endnode();
