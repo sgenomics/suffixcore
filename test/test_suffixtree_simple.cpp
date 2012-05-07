@@ -61,9 +61,10 @@ int test_suffixtree_simple(UnitTest &utf) {
     }
     s1.finalise();
 
-    bool validation = s1.validate_tree();
+    bool validation = s1.validate_tree(true);
     utf.test_equality(true,validation);
 
+    if(validation == false) { int *i=0;*i=1;}
     vector<char> chkstr1;
     chkstr1.clear();
     chkstr1.push_back('C');

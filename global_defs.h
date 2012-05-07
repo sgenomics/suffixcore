@@ -26,7 +26,7 @@
 #define use_tialloc 1
 
 #define alphabet_size  255
-#define symbol_size  253
+#define symbol_size  255
 #define final_symbol 254
 
 #define store_type string

@@ -141,7 +141,6 @@ public:
     return -1;
   }
 
-
   int32_t child_count() {
     return get_symbols_size();
   }
