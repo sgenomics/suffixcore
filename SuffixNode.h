@@ -62,9 +62,16 @@ class SuffixNode {
 
 public:
 
-  SuffixNode() {
+  SuffixNode(int res=0) {
     data = 0;
-    resize_for_symbols(0);
+    resize_for_symbols (res);
+    set_symbols_size   (0);
+    set_parent         (-1);
+    set_label_start    (-1);
+    set_label_end      (-1);
+    set_next_left_leaf (-1);
+    set_next_right_leaf(-1);
+    set_depth          (-1);
   }
 
   SuffixNode(const SuffixNode& other) {
@@ -72,7 +79,7 @@ public:
     *this = other;
   }
 
-  SuffixNode(int parent_in,int32_t label_start_in,int32_t depth_in) {
+  SuffixNode(int32_t parent_in,int32_t label_start_in,int32_t depth_in) {
 
     data = 0;
     resize_for_symbols(0);
@@ -250,6 +257,8 @@ public:
 
 
   SuffixNode &operator=(const SuffixNode &other) {
+    resize_for_symbols(other.get_symbols_size());
+
     set_parent          (other.get_parent());
     set_label_start     (other.get_label_start());
     set_label_end       (other.get_label_end());
@@ -344,13 +353,14 @@ public:
 
   int32_t get_label_end() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_end;
-    if(get_data_type() == 2) cout << "TRIED TO READ END ON ENDNODE" << endl;
+    if(get_data_type() == 2) return -1;
     // something clever for end_node?
   }
 
   void set_label_end(int32_t label_end_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_label_end = label_end_in;
-    if(get_data_type() == 2) cout << "TRIED TO SET END ON ENDNODE" << endl;
+ //   if(get_data_type() == 2) ;
+    
     // something clever for end_node?
   }
 
@@ -473,8 +483,8 @@ public:
   // return 0 for unknown, 1 for normal_node_data, 2 for end_node_data
   uint32_t get_data_type() const {
     if(data == 0) return 0;
-    if(get_data_alloc_size() > 17) return 1;
-                              else return 2;
+    if(get_data_alloc_size() > sizeof(end_node_data)) return 1;
+                                                 else return 2;
 
     return 0;
   }

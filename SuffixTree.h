@@ -374,8 +374,8 @@ public:
         // mismatch on edge label
         //Extend2 condition 1: Mismatch in edge label
 
-        int b_idx = store.push_back_norm();
-        int c_idx = store.push_back_end();
+        int32_t b_idx = store.push_back_norm();
+        int32_t c_idx = store.push_back_end();
 
         suffixnode_t insertion_point_tmp = store.get(insertion_point);
         int64_t old_parent               = insertion_point_tmp.get_parent();
