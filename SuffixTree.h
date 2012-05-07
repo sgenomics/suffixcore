@@ -504,8 +504,6 @@ public:
     s.push_back(current_symbol);
 //    if(!finalise) current_symbol = transcoder.convert(current_symbol);
 
-    
-
     SuffixNode::end_marker_value++;
 
     int last_node=0;

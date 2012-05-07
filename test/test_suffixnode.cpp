@@ -14,11 +14,28 @@ void test_suffixnode(UnitTest &utf) {
 
   SuffixNode s;
   s.set_child(1,5);
-  s.set_child(2,5);
-  s.set_child(1,8);
-  s.set_child(7,6);
-  s.set_child(3,4);
 
+  utf.test_equality(s.get_child(1),5);
+  utf.test_equality(s.child_count(),1);
+
+  s.set_child(2,5);
+  utf.test_equality(s.child_count(),2);
+  utf.test_equality(s.get_child(1),5);
+  utf.test_equality(s.get_child(2),5);
+
+  s.set_child(1,8);
+  utf.test_equality(s.child_count(),2);
+  utf.test_equality(s.get_child(1),8);
+  utf.test_equality(s.get_child(2),5);
+
+  s.set_child(7,6);
+  utf.test_equality(s.child_count(),3);
+  utf.test_equality(s.get_child(1),8);
+  utf.test_equality(s.get_child(2),5);
+  utf.test_equality(s.get_child(7),6);
+
+  s.set_child(3,4);
+  utf.test_equality(s.child_count(),4);
   utf.test_equality(s.get_child(1),8);
   utf.test_equality(s.get_child(2),5);
   utf.test_equality(s.get_child(3),4);
@@ -66,29 +83,28 @@ void test_suffixnode(UnitTest &utf) {
 
 
   SuffixNode s4;
-  s.set_child(1,5);
-  s.set_child(2,5);
-  s.set_child(1,8);
-  s.set_child(7,6);
-  s.set_child(3,4);
-  s.set_child(2,-1);
+  s4.set_child(1,5);
+  s4.set_child(2,5);
+  s4.set_child(1,8);
+  s4.set_child(7,6);
+  s4.set_child(3,4);
+  s4.set_child(2,-1);
 
-  utf.test_equality(s.find_child(8),1);
-  utf.test_equality(s.find_child(4),3);
+  utf.test_equality(s4.find_child(8),1);
+  utf.test_equality(s4.find_child(4),3);
 
-  current = s.get_first_child();
+  current = s4.get_first_child();
   utf.test_equality(current,8);
-  current = s.next_child(current);
+  current = s4.next_child(current);
   utf.test_equality(current,6);
-  current = s.next_child(current);
+  current = s4.next_child(current);
   utf.test_equality(current,4);
-  utf.test_equality(s.get_last_child(),4);
-  utf.test_equality(s.child_count(),3);
+  utf.test_equality(s4.get_last_child(),4);
+  utf.test_equality(s4.child_count(),3);
 
   SuffixNode s5;
   s5.set_child(5,-1);
   utf.test_equality(s5.child_count(),0);
-
 
   utf.end_test_set();
 }
