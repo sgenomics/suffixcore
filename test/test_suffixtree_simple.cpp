@@ -64,7 +64,6 @@ int test_suffixtree_simple(UnitTest &utf) {
     bool validation = s1.validate_tree(true);
     utf.test_equality(true,validation);
 
-    if(validation == false) { int *i=0;*i=1;}
     vector<char> chkstr1;
     chkstr1.clear();
     chkstr1.push_back('C');
@@ -496,6 +495,27 @@ int test_suffixtree_simple(UnitTest &utf) {
 
     res1 = s1.exists(chkstr1);
     utf.test_equality(res1,true);
+  }
+
+  if(runonly==-81 || runall) {
+    SuffixTree s1;
+
+    s1.insert('b');
+    s1.insert('b');
+    s1.insert('a');
+    s1.insert('b');
+    s1.finalise();
+    bool validation = s1.validate_tree();
+    utf.test_equality(validation,true);
+
+    vector<char> chkstr1;
+    chkstr1.push_back('b');
+    chkstr1.push_back('b');
+    bool res1;
+
+    res1 = s1.exists(chkstr1);
+    utf.test_equality(res1,true);
+    int *i=0;*i=1;
   }
 
 
