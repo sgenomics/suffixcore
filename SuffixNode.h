@@ -298,9 +298,7 @@ public:
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_depth;
     if(get_data_type() == 2) return (   (end_node_data *)data)->m_depth;
 
-    cout << "ERROR!!" << endl;
     return -1;
-   // if(get_data_type() == 2) return store.get(get_parent()).get_depth();
   }
 
   void set_depth_raw(int32_t depth_in) {
@@ -327,6 +325,7 @@ public:
   int32_t get_parent() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_parent;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_parent;
+    return -1;
   }
 
   void set_parent(int32_t parent_in) {
@@ -337,6 +336,7 @@ public:
   int32_t get_suffix_link() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_suffix_link;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_suffix_link;
+    return -1;
   }
   
   void set_suffix_link(int32_t suffix_link_in) {
@@ -347,6 +347,7 @@ public:
   int32_t get_label_start() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_start;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_label_start;
+    return -1;
   }
 
   void set_label_start(int32_t label_start_in) {
@@ -358,6 +359,7 @@ public:
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_end;
     if(get_data_type() == 2) return -1;
     // something clever for end_node?
+    return -1;
   }
 
   void set_label_end(int32_t label_end_in) {
@@ -373,6 +375,7 @@ public:
   int32_t get_next_left_leaf() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_left_leaf;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
+    return -1;
   }
 
   void set_next_left_leaf(int32_t next_left_leaf_in) {
@@ -383,6 +386,7 @@ public:
   int32_t get_next_right_leaf() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_right_leaf;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
+    return -1;
   }
 
   void set_next_right_leaf(int32_t next_right_leaf_in) {
@@ -400,9 +404,10 @@ public:
     set_symbols_size  (0);
   }
 
-  int32_t get_symbols_size() const {
+  uint8_t get_symbols_size() const {
     if(get_data_type() == 2) return 0;
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_symbols_size;
+    return 0;
   }
 
   void set_symbols_size(uint8_t size) {
@@ -413,7 +418,7 @@ public:
     //if(get_data_type() == 0) return SymbolPair(-1,-1); // uh oh
     //if(get_data_type() == 2) return SymbolPair(-1,-1);
     //if(get_data_type() == 1) {
-    return *((SymbolPair *) (data+(sizeof(normal_node_data)+(idx*sizeof(SymbolPair)))));
+    return *((SymbolPair *) (((uint8_t *)data)+(sizeof(normal_node_data)+(idx*sizeof(SymbolPair)))));
     //}
   }
 

@@ -24,7 +24,7 @@ long int make_tree(long int size) {
   time_t seconds1;
   time_t seconds2;
   seconds1 = clock ();
-  for(int n=0;n<ms.size();n++) {
+  for(size_t n=0;n<ms.size();n++) {
     s1.insert(ms[n]);
   }
   seconds2 = clock ();
@@ -32,7 +32,7 @@ long int make_tree(long int size) {
   return seconds2-seconds1;
 }
 
-int test_suffixtree_time(UnitTest &utf) {
+void test_suffixtree_time(UnitTest &utf) {
 
   utf.begin_test_set("Timing SuffixTree tests");
 

@@ -241,8 +241,8 @@ public:
       suffixnode_t c_tmp = store.get(c);
       if(c==nr) { stop=true; }
 
-      bool nochild=true;
-      if(c_tmp.get_label_start() != -1) { res.push_back(s.size()-c_tmp.get_depth()); nochild=false; }//TODO: err somehow convert this back in to correct location?!?
+      //bool nochild=true;
+      if(c_tmp.get_label_start() != -1) { res.push_back(s.size()-c_tmp.get_depth()); }//TODO: err somehow convert this back in to correct location?!?
 
       c = c_tmp.get_next_right_leaf();
 
@@ -505,7 +505,7 @@ public:
     SuffixNode::end_marker_value++;
 
     int last_node=0;
-    int last_node_sl=0;
+    //int last_node_sl=0;
     vector<vector<int64_t> > doall;
 
     last_node = first_non_leaf_node;
@@ -523,7 +523,7 @@ public:
     for(size_t n=first_non_leaf_n;n<s.size();n++) {
 
       suffixnode_t last_node_tmp1 = store.get(last_node);
-      last_node_sl = last_node_tmp1.get_suffix_link();
+      //last_node_sl = last_node_tmp1.get_suffix_link();
 
       int newnode;
 
@@ -658,8 +658,8 @@ public:
    // cout << "suffix_link    : " << n_tmp.suffix_link    << endl;
    // cout << "parent         : " << n_tmp.parent         << endl;
    // cout << "depth          : " << n_tmp.depth          << endl;
-   // cout << "next_left_leaf : " << n_tmp.next_left_leaf << endl;
-   // cout << "next_right_leaf: " << n_tmp.next_right_leaf << endl;
+    cout << "next_left_leaf : " << n_tmp.get_next_left_leaf() << endl;
+    cout << "next_right_leaf: " << n_tmp.get_next_right_leaf() << endl;
 
     bool has_child=false;
     for(int i=0;i<symbol_size;i++) {

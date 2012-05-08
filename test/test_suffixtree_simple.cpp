@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int test_suffixtree_simple(UnitTest &utf) {
+void test_suffixtree_simple(UnitTest &utf) {
 
   utf.begin_test_set("Simple SuffixTree tests");
   int runonly=0;
@@ -18,7 +18,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     string ms = "AABACBCCCABCAAABAABA";
     SuffixTree s1;
 
-    for(int n=0;n<ms.size();n++) {
+    for(size_t n=0;n<ms.size();n++) {
       s1.insert(ms[n]);
     }
     s1.finalise();
@@ -36,7 +36,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     string ms = "BBABCBBAABCBCBCBAABBCCAACCCBBBCAAACABBBBAAACCBCCCACBBCCACCBBAACACCBABCAAAACACCACBAACCAACCBAACABBBAACABCBCACCAABCBCCBACBCBAABACAC";
     SuffixTree s1;
 
-    for(int n=0;n<ms.size();n++) {
+    for(size_t n=0;n<ms.size();n++) {
       s1.insert(ms[n]);
     }
     s1.finalise();
@@ -56,7 +56,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     string ms = "BCCCCCCCCCCCCCC";
     SuffixTree s1;
 
-    for(int n=0;n<ms.size();n++) {
+    for(size_t n=0;n<ms.size();n++) {
       s1.insert(ms[n]);
     }
     s1.finalise();
@@ -75,7 +75,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     string ms = "CACACCACACACACA";
     SuffixTree s1;
 
-    for(int n=0;n<ms.size();n++) {
+    for(size_t n=0;n<ms.size();n++) {
       s1.insert(ms[n]);
     }
     s1.finalise();
@@ -94,7 +94,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     string ms = "CBACBACBACBCBBA";
     SuffixTree s1;
 
-    for(int n=0;n<ms.size();n++) {
+    for(size_t n=0;n<ms.size();n++) {
       s1.insert(ms[n]);
     }
     s1.finalise();
@@ -113,7 +113,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     string ms = "ACBBAACACACCACCACCACCCBABCBCABCABACCBCAACAAABAABCBACACACBCBCBAAABACCAAAACBBACCBCABACBBCCAABCBAACAAAB";
     SuffixTree s1;
 
-    for(int n=0;n<ms.size();n++) {
+    for(size_t n=0;n<ms.size();n++) {
       s1.insert(ms[n]);
     }
     s1.finalise();

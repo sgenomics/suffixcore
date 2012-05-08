@@ -8,14 +8,14 @@
 
 using namespace std;
 
-int test_suffixtree_alloccurs(UnitTest &utf) {
+void test_suffixtree_alloccurs(UnitTest &utf) {
 
   utf.begin_test_set("All Occurs SuffixTree tests");
 
   string ms = "banana";
   SuffixTree s1;
 
-  for(int n=0;n<ms.size();n++) {
+  for(size_t n=0;n<ms.size();n++) {
     s1.insert(ms[n]);
   }
   s1.finalise();
@@ -36,7 +36,7 @@ int test_suffixtree_alloccurs(UnitTest &utf) {
 
   string m2 = "zzzcoopcoopcoop";
   SuffixTree s2;
-  for(int n=0;n<m2.size();n++) {
+  for(size_t n=0;n<m2.size();n++) {
     s2.insert(m2[n]);
   }
   s2.finalise();

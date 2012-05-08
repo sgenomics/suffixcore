@@ -7,14 +7,14 @@
 
 using namespace std;
 
-int test_suffixtree_processpositions(UnitTest &utf) {
+void test_suffixtree_processpositions(UnitTest &utf) {
 
   utf.begin_test_set("Process Positions SuffixTree tests");
 
   string ms = "banana$";
   SuffixTree s1;
 
-  for(int n=0;n<ms.size();n++) {
+  for(size_t n=0;n<ms.size();n++) {
     s1.insert(ms[n]);
   }
 
@@ -22,6 +22,7 @@ int test_suffixtree_processpositions(UnitTest &utf) {
   utf.test_equality(true,validation);
 
   s1.process_positions();
+  s1.dump();
   validation = s1.validate_positions();
   utf.test_equality(true,validation);
 

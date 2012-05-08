@@ -8,7 +8,7 @@
 
 using namespace std;
 
-int test_suffixtree_random(UnitTest &utf) {
+void test_suffixtree_random(UnitTest &utf) {
 
   utf.begin_test_set("Random SuffixTree tests");
   SuffixTree s;
