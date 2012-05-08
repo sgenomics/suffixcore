@@ -366,7 +366,6 @@ public:
     if(get_data_type() == 1) ((normal_node_data *)data)->m_label_end = label_end_in;
     if(get_data_type() == 2) if((label_end_in != -1) && (label_end_in != end_marker)) {
       cout << "ERROR SETTING LABEL_END ON END NODE" << endl;
-     int *i=0;*i=1;
     }
     
     // something clever for end_node?
@@ -440,6 +439,7 @@ public:
   void resize_for_symbols(int32_t new_symbol_size) {
 
     int32_t old_symbol_size = get_symbols_size();
+    int old_data_type = get_data_type();
 
     // SuffixNodes with two children will almost immediately receive another.
     // These unused allocations will cause fragmention in tialloc, so we allocate 2 to start with.
@@ -472,17 +472,18 @@ public:
       #endif
 
       set_symbols_size(old_symbol_size);
+      int new_data_type = get_data_type();
 
-      if((new_symbol_size != 0) && (old_symbol_size == 0)) reformat_endnode_to_normalnode();
-      if((new_symbol_size == 0) && (old_symbol_size != 0)) reformat_normalnode_to_endnode();
+      if((old_data_type == 2) && (new_data_type == 1)) reformat_endnode_to_normalnode();
+      if((old_data_type == 1) && (new_data_type == 2)) reformat_normalnode_to_endnode();
 
     }
   }
  
   void reformat_endnode_to_normalnode() {
     set_next_left_leaf (-1);
- //   set_label_end      (-1);
- //   set_symbols_size   (0); 
+    set_label_end      (-1);
+    set_symbols_size   (0); 
   }
 
   void reformat_normalnode_to_endnode() {}
