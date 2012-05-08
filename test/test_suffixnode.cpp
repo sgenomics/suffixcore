@@ -126,7 +126,10 @@ void test_suffixnode(UnitTest &utf) {
   s6.set_label_start(5);
   utf.test_equality(s6.get_label_start(),5);
 
-
+  SuffixNode s7;
+  s7.set_child(1,1);
+  utf.test_equality(s6.get_label_end(),-1);
+  utf.test_equality(s6.get_next_left_leaf(),-1);
 
   utf.end_test_set();
 }

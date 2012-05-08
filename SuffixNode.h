@@ -479,8 +479,11 @@ public:
     }
   }
  
-  // data is organised such that reformating is not required!
-  void reformat_endnode_to_normalnode() {}
+  void reformat_endnode_to_normalnode() {
+    set_next_left_leaf (-1);
+ //   set_label_end      (-1);
+ //   set_symbols_size   (0); 
+  }
 
   void reformat_normalnode_to_endnode() {}
 
