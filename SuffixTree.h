@@ -805,22 +805,37 @@ public:
   }
 
   bool validate_positions() {
-/*
-REQUIRES REWRITE
+
     for(int64_t n=1;n!=store.last_idx();n=store.next_idx(n)) {
 
       suffixnode_t n_tmp = store.get(n);
-      int left  = n_tmp.next_left_leaf;
-      int right = n_tmp.next_right_leaf;
 
-      suffixnode_t left_tmp = store.get(left);
-      suffixnode_t right_tmp = store.get(right);
-      if((left != -1) && (right != -1) && n_tmp.is_leaf() && left_tmp.is_leaf() && right_tmp.is_leaf()) {
-        if(left_tmp.next_right_leaf != n) { cout << "store[" << left  << "].next_right_leaf=" << left_tmp.next_right_leaf << "!=" << n << endl; return false;}
-        if(right_tmp.next_left_leaf != n) { cout << "store[" << right << "].next_left_leaf="  << left_tmp.next_left_leaf  << "!=" << n << endl; return false;}
+      if(!n_tmp.is_leaf()) {
+
+        int32_t left_most=n;
+        for(;;) {
+          suffixnode_t c_tmp = store.get(left_most);
+          if(c_tmp.is_leaf()) break;
+          left_most = c_tmp.get_first_child();
+        }
+
+        int32_t right_most=n;
+        for(;;) {
+          suffixnode_t c_tmp = store.get(right_most);
+          if(c_tmp.is_leaf()) break;
+          right_most = c_tmp.get_last_child();
+        }
+
+        if((left_most   == n_tmp.get_next_left_leaf()) &&
+           (right_most  == n_tmp.get_next_right_leaf())) {
+          // validate ok
+        } else {
+          cout << "ERROR: Positions validation failed for node: " << n << endl;
+          return false;
+        }
+
       }
     }
-*/
     return true;
   }
 
