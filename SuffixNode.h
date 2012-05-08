@@ -55,7 +55,7 @@ public:
   int32_t m_parent;
   int32_t m_suffix_link;
   int32_t m_label_start;
-  int32_t m_next_leaf;
+  int32_t m_next_right_leaf;
 } __attribute__((__packed__));
 
 class SuffixNode {
@@ -162,6 +162,7 @@ public:
   }
 
   void set_child(uint8_t n,int32_t m) {
+
     if(get_symbols_size() == 0) {
       if(m == -1) return;
  
@@ -296,6 +297,9 @@ public:
   int32_t get_depth_raw() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_depth;
     if(get_data_type() == 2) return (   (end_node_data *)data)->m_depth;
+
+    cout << "ERROR!!" << endl;
+    return -1;
    // if(get_data_type() == 2) return store.get(get_parent()).get_depth();
   }
 
@@ -358,29 +362,32 @@ public:
 
   void set_label_end(int32_t label_end_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_label_end = label_end_in;
- //   if(get_data_type() == 2) ;
+    if(get_data_type() == 2) if((label_end_in != -1) && (label_end_in != end_marker)) {
+      cout << "ERROR SETTING LABEL_END ON END NODE" << endl;
+     int *i=0;*i=1;
+    }
     
     // something clever for end_node?
   }
 
   int32_t get_next_left_leaf() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_left_leaf;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_leaf;
+    if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
   }
 
   void set_next_left_leaf(int32_t next_left_leaf_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_next_left_leaf = next_left_leaf_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_next_leaf      = next_left_leaf_in;
+ //   if(get_data_type() == 2) ((   end_node_data *)data)->m_next_leaf      = next_left_leaf_in;
   }
 
   int32_t get_next_right_leaf() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_right_leaf;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_leaf;
+    if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
   }
 
   void set_next_right_leaf(int32_t next_right_leaf_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_next_leaf       = next_right_leaf_in;
+    if(get_data_type() == 2) ((   end_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
   }
 
   // Symbols access
@@ -446,7 +453,7 @@ public:
       #endif
 
       clear();
-      set_symbols_size(new_symbol_size);
+      set_symbols_size(old_symbol_size);
       
  
     } else {
@@ -459,6 +466,7 @@ public:
       data = realloc(data,alloc_size);
       #endif
 
+      set_symbols_size(old_symbol_size);
 
       if((new_symbol_size != 0) && (old_symbol_size == 0)) reformat_endnode_to_normalnode();
       if((new_symbol_size == 0) && (old_symbol_size != 0)) reformat_normalnode_to_endnode();
@@ -475,6 +483,7 @@ public:
     #ifdef use_tialloc
     return tialloc::instance()->alloc_size(data);
     #else
+    return 0;
     //m_symbols = (SymbolPair *) malloc_posix_something...();
     #endif
   }

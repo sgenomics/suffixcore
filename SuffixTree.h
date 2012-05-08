@@ -79,8 +79,6 @@ public:
   }
  
   void process_positions() {
-    cout << "Processing positions" << endl;
-
     int c    = SuffixNode::root;  // start at root vertex.
     int last = -1;
 
@@ -628,6 +626,7 @@ public:
 
     split_count = new_split_count+1;
     //validate_tree();
+    //dump();
   }
 
   void dump() {
@@ -827,7 +826,7 @@ REQUIRES REWRITE
 
   bool validate_tree(bool dump=false) {
     for(int64_t n=1;n!=store.last_idx();n=store.next_idx(n)) {
-      if(dump) cout << "validating: " << n << endl;
+      //if(dump) cout << "validating: " << n << endl;
       //bool v1 = validate_depth(n,dump);
       //bool v2 = validate_suffix_link(n,dump);
       bool v3 = validate_parent(n,dump);

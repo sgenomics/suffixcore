@@ -41,7 +41,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     }
     s1.finalise();
 
-    bool validation = s1.validate_tree();
+    bool validation = s1.validate_tree(true);
     utf.test_equality(true,validation);
 
     vector<char> chkstr1;
@@ -166,7 +166,7 @@ int test_suffixtree_simple(UnitTest &utf) {
     s1.insert('a');
     s1.insert('a');
     s1.finalise();
-    bool validation = s1.validate_tree();
+    bool validation = s1.validate_tree(true);
     utf.test_equality(validation,true);
 
     vector<char> chkstr1;
@@ -511,11 +511,11 @@ int test_suffixtree_simple(UnitTest &utf) {
     vector<char> chkstr1;
     chkstr1.push_back('b');
     chkstr1.push_back('b');
+    chkstr1.push_back('a');
     bool res1;
 
     res1 = s1.exists(chkstr1);
     utf.test_equality(res1,true);
-    int *i=0;*i=1;
   }
 
 

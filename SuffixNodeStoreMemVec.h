@@ -44,8 +44,8 @@ public:
   }
 
   size_t push_back_norm() {
-    SuffixNode s(2);
-    return push_back(s);
+    SuffixNode s;
+    return push_back(s,2);
   }
 
   size_t push_back_end() {
@@ -53,17 +53,19 @@ public:
     return push_back(s);
   }
 
-  size_t push_back(SuffixNode &s) {
+  size_t push_back(SuffixNode &s,int resize=-1) {
 
     if(storage_area_real_size > storage_area_size) {
       storage_area[storage_area_size].wipe();
       storage_area[storage_area_size] = s;
+      if(resize > 0) storage_area[storage_area_size].resize_for_symbols(resize);
       storage_area_size++;
     } else {
       storage_area_real_size += 10000;
       storage_area = (SuffixNode *) realloc(storage_area,storage_area_real_size*(sizeof(SuffixNode)));
       storage_area[storage_area_size].wipe();
       storage_area[storage_area_size] = s;
+      if(resize > 0) storage_area[storage_area_size].resize_for_symbols(resize);
       storage_area_size++;
     }
 

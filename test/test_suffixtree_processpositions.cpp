@@ -22,7 +22,6 @@ int test_suffixtree_processpositions(UnitTest &utf) {
   utf.test_equality(true,validation);
 
   s1.process_positions();
-  //s1.dump();
   validation = s1.validate_positions();
   utf.test_equality(true,validation);
 
