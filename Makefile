@@ -13,4 +13,4 @@
 # Can modify source-code but cannot distribute modifications (derivative works).
 
 insertfile: insertfile.cpp SuffixTree.h SuffixNode.h *.h *.cpp
-	g++ -O3 insertfile.cpp ./tialloc/tialloc.cpp ./SuffixNode.cpp -I./tialloc -o insertfile
+	g++ -m32 -O3 insertfile.cpp ./tialloc/tialloc.cpp ./SuffixNode.cpp -I./tialloc -o insertfile

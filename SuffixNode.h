@@ -46,7 +46,6 @@ public:
   int32_t m_next_right_leaf;
   int32_t m_next_left_leaf;
   int32_t m_label_end;
-  uint8_t m_symbols_size;    // it should be possible to remove this later
 } __attribute__((__packed__));
 
 class end_node_data {
@@ -186,9 +185,10 @@ public:
       }
     } else {
       resize_for_symbols(get_symbols_size()+1);
-      set_symbols_size(get_symbols_size()+1);
-      get_symbol_by_idx(get_symbols_size()-1).symbol = n;
-      get_symbol_by_idx(get_symbols_size()-1).index  = m;
+      int idx = get_symbols_size();
+      get_symbol_by_idx(idx).symbol = n;
+      get_symbol_by_idx(idx).index  = m;
+      set_symbols_size(idx+1);
     }
   }
 
@@ -403,14 +403,46 @@ public:
     set_symbols_size  (0);
   }
 
-  uint8_t get_symbols_size() const {
-    if(get_data_type() == 2) return 0;
-    if(get_data_type() == 1) return ((normal_node_data *)data)->m_symbols_size;
-    return 0;
+  uint8_t get_allocated_symbol_size() const {
+    if(get_data_alloc_size() < sizeof(normal_node_data)) return 0;
+    return (get_data_alloc_size()-sizeof(normal_node_data))/sizeof(SymbolPair);
   }
 
+  uint8_t get_symbols_size() const {
+    if(get_data_type() == 2) return 0;
+    if(get_data_type() == 1) {
+      int t_symbol_size=0;
+      t_symbol_size = get_allocated_symbol_size();
+      for(int n=t_symbol_size-1;((get_symbol_by_idx(n).symbol == 0) &&
+         (get_symbol_by_idx(n).index  == -1)) && (n>=0);n--) {t_symbol_size--;}
+      if(t_symbol_size < 0) return 0;
+      return t_symbol_size;
+    }
+    return 0;
+  }
+/*
+  uint8_t get_symbols_size_stored() const {
+    if(get_data_type() == 2) return 0;
+    if(get_data_type() == 1) {
+      uint8_t m_symbol_size =  ((normal_node_data *)data)->m_symbols_size;
+      if(m_symbol_size != get_symbols_size()) {
+        cout << "ERROR: size mismatch: " << (int) m_symbol_size << " " << (int) get_symbols_size() << endl;
+        for(size_t n=0;n<get_allocated_symbol_size();n++) {
+          cout << (int) get_symbol_by_idx(n).symbol << " ";
+          cout << (int) get_symbol_by_idx(n).index << endl;
+        }
+        int *i=0;*i=0;
+      }
+      return m_symbol_size;
+    }
+    return 0;
+  }
+*/
   void set_symbols_size(uint8_t size) {
-    if(get_data_type() == 1) ((normal_node_data *)data)->m_symbols_size = size;
+    if(get_data_type() == 1) {
+      clear_symbols(size);
+   //   ((normal_node_data *)data)->m_symbols_size = size;
+    }
   }
 
   SymbolPair &get_symbol_by_idx(int32_t idx) const {
@@ -459,7 +491,7 @@ public:
 
       clear();
       set_symbols_size(old_symbol_size);
-      
+      clear_symbols(old_symbol_size);
  
     } else {
       if(new_symbol_size == 0) alloc_size = sizeof(end_node_data);
@@ -477,13 +509,23 @@ public:
       if((old_data_type == 2) && (new_data_type == 1)) reformat_endnode_to_normalnode();
       if((old_data_type == 1) && (new_data_type == 2)) reformat_normalnode_to_endnode();
 
+      clear_symbols(old_symbol_size);
+    }
+  }
+
+  void clear_symbols(uint8_t old_size) {
+    if(get_allocated_symbol_size() <= 0) return;
+
+    for(size_t n=old_size;n<get_allocated_symbol_size();n++) {
+      get_symbol_by_idx(n).symbol = 0;
+      get_symbol_by_idx(n).index  = -1;
     }
   }
  
   void reformat_endnode_to_normalnode() {
     set_next_left_leaf (-1);
     set_label_end      (-1);
-    set_symbols_size   (0); 
+    set_symbols_size   (0);
   }
 
   void reformat_normalnode_to_endnode() {}

@@ -28,7 +28,10 @@ int main(int argc,char ** argv) {
   ifstream input_file(argv[1]);
 
   SuffixTree st;
-  //st.set_compactmode(false);
+
+  cout << "SuffixNode size      : " << sizeof(SuffixNode) << endl;
+  cout << "normal_node_data size: " << sizeof(normal_node_data) << endl;
+  cout << "end_node_data size   : " << sizeof(end_node_data) << endl;
 
   unsigned char s;
   for(;!input_file.eof();) {
