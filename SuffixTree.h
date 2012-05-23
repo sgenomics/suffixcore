@@ -34,7 +34,9 @@ class SuffixTree {
 
 public:
   SuffixTree() {
-    
+ 
+    SuffixNode::store = &store;
+   
     SuffixNode root(0,-1,-1);
     root.set_suffix_link(0);
     root.set_parent(0);

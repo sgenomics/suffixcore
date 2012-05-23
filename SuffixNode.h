@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "tialloc.h"
+#include "SuffixNodeStoreMemVec.h"
 
 using namespace std;
 
@@ -50,7 +51,7 @@ public:
 
 class end_node_data {
 public:
-  int32_t m_depth;
+ // int32_t m_depth;
   int32_t m_parent;
   int32_t m_suffix_link;
   int32_t m_label_start;
@@ -296,14 +297,18 @@ public:
 public:
   int32_t get_depth_raw() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_depth;
-    if(get_data_type() == 2) return (   (end_node_data *)data)->m_depth;
+    if(get_data_type() == 2) {
+      if(get_parent() == -1) return 0;
+      return store->get(get_parent()).get_depth();
+      //return (   (end_node_data *)data)->m_depth;
+    }
 
     return -1;
   }
 
   void set_depth_raw(int32_t depth_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_depth = depth_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_depth = depth_in;
+    //if(get_data_type() == 2) ((   end_node_data *)data)->m_depth = depth_in;
     // something clever for end_node?
   }
 
@@ -318,7 +323,7 @@ public:
 
   void set_depth(int32_t depth_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_depth = depth_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_depth = depth_in;
+    //if(get_data_type() == 2) ((   end_node_data *)data)->m_depth = depth_in;
     // something clever for end_node?
   }
 
@@ -553,6 +558,7 @@ private:
   void *data;
 
 public:
+  static suffixnodestore_type *store;
   static int32_t end_marker;
   static int32_t end_marker_value;
   static int32_t root;
