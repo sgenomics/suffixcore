@@ -20,6 +20,7 @@
 #include "SuffixTree.h"
 #include <stdint.h>
 #include <fstream>
+#include "SearchTrans.h"
 
 using namespace std;
 
@@ -28,6 +29,7 @@ int main(int argc,char ** argv) {
   ifstream input_file(argv[1]);
 
   SuffixTree st;
+  //SearchTrans st;
 
   cout << "SuffixNode size      : " << sizeof(SuffixNode) << endl;
   cout << "normal_node_data size: " << sizeof(normal_node_data) << endl;
@@ -42,7 +44,7 @@ int main(int argc,char ** argv) {
   st.finalise();
   st.compact();
 
-  vector<char> t;
+  vector<unsigned char> t;
   string ss = argv[2];
   cout << "searching for: " << ss << endl;
   for(size_t n=0;n<ss.size();n++) {

@@ -27,7 +27,7 @@ void test_suffixtree_alloccurs(UnitTest &utf) {
   validation = s1.validate_positions();
  // utf.test_equality(true,validation);
 
-  vector<char> ss;
+  vector<symbol_type> ss;
   ss.push_back('n');
   ss.push_back('a');
   vector<size_t> p = s1.all_occurs(ss);

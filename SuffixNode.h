@@ -25,16 +25,17 @@
 #include <stdint.h>
 #include "tialloc.h"
 #include "SuffixNodeStoreMemVec.h"
+#include "global_defs.h"
 
 using namespace std;
 
 class SymbolPair {
   public:
 
-  SymbolPair(uint8_t s,int32_t i) : symbol(s),index(i) {
+  SymbolPair(symbol_type s,int32_t i) : symbol(s),index(i) {
   }
 
-  uint8_t symbol;
+  symbol_type symbol;
   int32_t index;
 } __attribute__((__packed__));
 
@@ -51,7 +52,6 @@ public:
 
 class end_node_data {
 public:
- // int32_t m_depth;
   int32_t m_parent;
   int32_t m_suffix_link;
   int32_t m_label_start;
@@ -145,7 +145,7 @@ public:
     return get_symbols_size();
   }
 
-  int32_t get_child(uint8_t symbol) {
+  int32_t get_child(symbol_type symbol) {
     if(get_symbols_size() == 0) return -1;
 
     for(int n=0;n<get_symbols_size();n++) {
@@ -154,14 +154,14 @@ public:
     return -1;
   }
 
-  int32_t child_local_idx(uint8_t symbol) {
+  int32_t child_local_idx(symbol_type symbol) {
     for(size_t n=0;n<get_symbols_size();n++) {
       if(get_symbol_by_idx(n).symbol == symbol) return n;
     }
     return -1;
   }
 
-  void set_child(uint8_t n,int32_t m) {
+  void set_child(symbol_type n,int32_t m) {
 
     if(get_symbols_size() == 0) {
       if(m == -1) return;
@@ -408,12 +408,12 @@ public:
     set_symbols_size  (0);
   }
 
-  uint8_t get_allocated_symbol_size() const {
+  size_t get_allocated_symbol_size() const {
     if(get_data_alloc_size() < sizeof(normal_node_data)) return 0;
     return (get_data_alloc_size()-sizeof(normal_node_data))/sizeof(SymbolPair);
   }
 
-  uint8_t get_symbols_size() const {
+  size_t get_symbols_size() const {
     if(get_data_type() == 2) return 0;
     if(get_data_type() == 1) {
       int t_symbol_size=0;
@@ -443,7 +443,7 @@ public:
     return 0;
   }
 */
-  void set_symbols_size(uint8_t size) {
+  void set_symbols_size(size_t size) {
     if(get_data_type() == 1) {
       clear_symbols(size);
    //   ((normal_node_data *)data)->m_symbols_size = size;
@@ -518,7 +518,7 @@ public:
     }
   }
 
-  void clear_symbols(uint8_t old_size) {
+  void clear_symbols(size_t old_size) {
     if(get_allocated_symbol_size() <= 0) return;
 
     for(size_t n=old_size;n<get_allocated_symbol_size();n++) {

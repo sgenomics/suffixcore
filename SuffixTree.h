@@ -153,12 +153,12 @@ public:
     }
   }
 
-  int find_tree_position(vector<char> ss) {
+  int find_tree_position(vector<symbol_type> ss) {
     // follow labels from root down, edge labels.
 
     int current_node = store.get(SuffixNode::root).get_child(ss[0]);
 
-    char label;
+    symbol_type label;
     if(ss.size() == 1) {
       label = 0;
     } else {
@@ -201,17 +201,18 @@ public:
     return res;
   }
 
+/*
   vector<size_t> all_occurs(string ss,size_t max_hits=-1) {
 
-    vector<char> search;
+    vector<symbol_type> search;
     for(size_t n=0;n<ss.size();n++) {
       search.push_back(ss[n]);
     }
 
     return all_occurs(search,max_hits);
   }
-
-  vector<size_t> all_occurs(vector<char> ss,size_t max_hits=-1) {
+*/
+  vector<size_t> all_occurs(vector<symbol_type> ss,size_t max_hits=-1) {
     //cout << "find all occurs..." << endl;
     vector<size_t> res;
 
@@ -254,7 +255,7 @@ public:
     return res;
   }
 
-  bool exists(vector<char> t) {
+  bool exists(vector<symbol_type> t) {
  
 //    for(size_t n=0;n<t.size();n++) t[n] = transcoder.convert(t[n]);
 
@@ -264,7 +265,7 @@ public:
     return true;
   }
 
-  int exists_node(vector<char> t) {
+  int exists_node(vector<symbol_type> t) {
 
     // follow labels from root down, edge labels.
 
@@ -441,7 +442,7 @@ public:
       return insertion_point;
     }
 
-    char child_sym = s[pos];
+    symbol_type child_sym = s[pos];
 
     {
       suffixnode_t insertion_point_tmp = store.get(insertion_point);
@@ -499,7 +500,7 @@ public:
     }
   }
 
-  void insert(unsigned char current_symbol,bool finalise=false) {
+  void insert(symbol_type current_symbol,bool finalise=false) {
 
     s.push_back(current_symbol);
 //    if(!finalise) current_symbol = transcoder.convert(current_symbol);

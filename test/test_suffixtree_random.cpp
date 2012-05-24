@@ -23,7 +23,7 @@ void test_suffixtree_random(UnitTest &utf) {
 
   // simple existance tests
 
-  vector<char> chkstr;
+  vector<symbol_type> chkstr;
   chkstr.push_back('a');
   chkstr.push_back('n');
   chkstr.push_back('a');
@@ -56,11 +56,11 @@ void test_suffixtree_random(UnitTest &utf) {
   // randomised tests
 
   for(int i=0;i<100;i++) {
-    vector<char> str2;
-    vector<char> chkstr2;
+    vector<symbol_type> str2;
+    vector<symbol_type> chkstr2;
 
     for(int n=0;n<2000;n++) {
-      char c = (rand()%3)+65;
+      symbol_type c = (rand()%3)+65;
       str2.push_back(c);
     }
 
@@ -80,7 +80,7 @@ void test_suffixtree_random(UnitTest &utf) {
     res = s2.exists(chkstr2);
     utf.test_equality(res,true);
 
-    vector<char> chkstr3;
+    vector<symbol_type> chkstr3;
     chkstr3.push_back('z');
     chkstr3.push_back('z');
     chkstr3.push_back('z');
@@ -93,9 +93,9 @@ void test_suffixtree_random(UnitTest &utf) {
       s3 += str2[n];
     }
 
-    vector<char> chkstr4;
+    vector<symbol_type> chkstr4;
     for(int n=0;n<3;n++) {
-      char c = (rand()%3)+65;
+      symbol_type c = (rand()%3)+65;
       s2str += c;
       chkstr4.push_back(c);
     }

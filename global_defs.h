@@ -26,9 +26,10 @@
 #define use_tialloc 1
 
 #define alphabet_size  255
+#define symbol_type uint8_t
 #define symbol_size  255
 #define final_symbol 254
 
-#define store_type string
+#define store_type vector<symbol_type>
 
 #endif
