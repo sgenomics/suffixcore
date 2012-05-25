@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"
-#include "global_defs.h"
 
 #define suffixnode_t SuffixNode&
 

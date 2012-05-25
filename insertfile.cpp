@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include "global_defs.h"
 #include "SuffixTree.h"
 #include <stdint.h>
 #include <fstream>
@@ -44,7 +45,7 @@ int main(int argc,char ** argv) {
   st.finalise();
   st.compact();
 
-  vector<unsigned char> t;
+  vector<symbol_type> t;
   string ss = argv[2];
   cout << "searching for: " << ss << endl;
   for(size_t n=0;n<ss.size();n++) {

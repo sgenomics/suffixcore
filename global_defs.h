@@ -26,7 +26,7 @@
 #define use_tialloc 1
 
 #define alphabet_size  255
-#define symbol_type uint8_t
+#define symbol_type uint16_t
 #define symbol_size  255
 #define final_symbol 254
 

@@ -17,7 +17,6 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include "global_defs.h"
 #include "tialloc.h"
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"

@@ -20,7 +20,6 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include "global_defs.h"
 #include "tialloc.h"
 
 class SuffixNode;

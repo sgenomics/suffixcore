@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include "tialloc.h"
 #include "SuffixNodeStoreMemVec.h"
-#include "global_defs.h"
 
 using namespace std;
 
