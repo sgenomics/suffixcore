@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include "tialloc.h"
-#include "SuffixNodeStoreMemVec.h"
 
 using namespace std;
 
@@ -62,6 +61,9 @@ class SuffixNode {
 public:
 
   SuffixNode(int res=0) {
+
+    if(res < 0) return;
+
     data = 0;
     resize_for_symbols (res);
     set_symbols_size   (0);
@@ -326,7 +328,7 @@ public:
     // something clever for end_node?
   }
 
-  int32_t get_parent() const {
+  uint32_t get_parent() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_parent;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_parent;
     return -1;

@@ -13,8 +13,8 @@
  * Can modify source-code but cannot distribute modifications (derivative works).
  */
 
+#include "global_defs.h"
 #include "SuffixNode.h"
-#include "SuffixNodeStoreMemVec.h"
 
 int SuffixNode::end_marker = -1;
 int SuffixNode::end_marker_value = -1;
