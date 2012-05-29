@@ -552,6 +552,9 @@ public:
     return 0;
   }
 
+  void *get_data() {
+    return data;
+  }
 
 private:
   void *data;
