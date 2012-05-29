@@ -134,7 +134,7 @@ public:
   }
 
   int find_child(int c) {
-    for(int n=0;n<get_symbols_size();n++) {
+    for(size_t n=0;n<get_symbols_size();n++) {
       if(get_symbol_by_idx(n).index == c) return get_symbol_by_idx(n).symbol;
     }
     return -1;
@@ -147,7 +147,7 @@ public:
   int32_t get_child(symbol_type symbol) {
     if(get_symbols_size() == 0) return -1;
 
-    for(int n=0;n<get_symbols_size();n++) {
+    for(size_t n=0;n<get_symbols_size();n++) {
       if(get_symbol_by_idx(n).symbol == symbol) return get_symbol_by_idx(n).index;
     }
     return -1;
