@@ -556,6 +556,10 @@ public:
     return data;
   }
 
+  void set_data(void *d) {
+    data = d;
+  }
+
 private:
   void *data;
 
