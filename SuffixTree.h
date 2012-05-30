@@ -17,6 +17,7 @@
 #define SUFFIXTREE
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -24,6 +25,7 @@
 #include <stdlib.h>
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"
+#include "stringify.h"
 
 #define suffixnode_t SuffixNode&
 
@@ -857,7 +859,6 @@ public:
     membersfile << "suffixtree_split_point_node="     << split_point_node     << endl;
     membersfile << "suffixtree_split_point_position=" << split_point_position << endl;
     membersfile << "suffixtree_split_distance="       << split_distance       << endl;
-    membersfile << "suffixtree_current_node="         << current_node         << endl;
     membersfile << "suffixtree_first_non_leaf_node="  << first_non_leaf_node  << endl;
     membersfile << "suffixtree_first_non_leaf_n="     << first_non_leaf_n     << endl;
     membersfile.close();
@@ -874,14 +875,13 @@ public:
 
       string member;
       string value;
-      getline(cline,member,"=");
-      getline(cline,value,"=");
+      getline(cline,member,'=');
+      getline(cline,value);
 
       if(member == "suffixtree_root_nodex"           ) root_node            = convertTo<int>(value); 
       if(member == "suffixtree_split_point_node"     ) split_point_node     = convertTo<int>(value); 
       if(member == "suffixtree_split_point_position" ) split_point_position = convertTo<int>(value); 
       if(member == "suffixtree_split_distance"       ) split_distance       = convertTo<int>(value); 
-      if(member == "suffixtree_current_node"         ) current_node         = convertTo<int>(value); 
       if(member == "suffixtree_first_non_leaf_node"  ) first_non_leaf_node  = convertTo<int>(value); 
       if(member == "suffixtree_first_non_leaf_n"     ) first_non_leaf_n     = convertTo<int>(value); 
     }
@@ -895,7 +895,6 @@ public:
   int split_point_node;      ///< Point of last insertion/split in tree (node index)
   int split_point_position;  ///< Point of last insertion/split in tree (label position)
   int split_distance;        ///< distance to last split point
-  int current_node;          ///< Current node in tree (active point?)
   int first_non_leaf_node;
   int first_non_leaf_n;
 };
