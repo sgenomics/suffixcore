@@ -850,6 +850,44 @@ public:
     store.set_compactmode(compactmode);
   }
 
+  void save_members(string filename) {
+    // write my members
+    ofstream membersfile(filename.c_str(),ios_base::app); // open for append
+    membersfile << "suffixtree_root_node="            << root_node            << endl;
+    membersfile << "suffixtree_split_point_node="     << split_point_node     << endl;
+    membersfile << "suffixtree_split_point_position=" << split_point_position << endl;
+    membersfile << "suffixtree_split_distance="       << split_distance       << endl;
+    membersfile << "suffixtree_current_node="         << current_node         << endl;
+    membersfile << "suffixtree_first_non_leaf_node="  << first_non_leaf_node  << endl;
+    membersfile << "suffixtree_first_non_leaf_n="     << first_non_leaf_n     << endl;
+    membersfile.close();
+  }
+
+  void load_members(string filename) {
+    ifstream membersfile(filename.c_str());
+  
+    for(;!membersfile.eof();) {
+      string line;
+      getline(membersfile,line);
+
+      stringstream cline(line);
+
+      string member;
+      string value;
+      getline(cline,member,"=");
+      getline(cline,value,"=");
+
+      if(member == "suffixtree_root_nodex"           ) root_node            = convertTo<int>(value); 
+      if(member == "suffixtree_split_point_node"     ) split_point_node     = convertTo<int>(value); 
+      if(member == "suffixtree_split_point_position" ) split_point_position = convertTo<int>(value); 
+      if(member == "suffixtree_split_distance"       ) split_distance       = convertTo<int>(value); 
+      if(member == "suffixtree_current_node"         ) current_node         = convertTo<int>(value); 
+      if(member == "suffixtree_first_non_leaf_node"  ) first_non_leaf_node  = convertTo<int>(value); 
+      if(member == "suffixtree_first_non_leaf_n"     ) first_non_leaf_n     = convertTo<int>(value); 
+    }
+    membersfile.close();
+  }
+
   store_type s;
   suffixnodestore_type store;
 
