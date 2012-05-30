@@ -166,14 +166,11 @@ public:
     size_t search_string_position = 0;
     if(current_node == -1) return -1;
     for(;search_string_position < ss.size();) {
-      cout << "current_node: " << current_node << endl;
       suffixnode_t current_node_tmp = store.get(current_node);
       // follow edge label
       for(int position=current_node_tmp.get_label_start();position <= current_node_tmp.get_label_end_translated();position++) {
 
-        cout << "s: " << s[position] << endl;
-        cout << "ss: " << ss[search_string_position] << endl;
-        if(s[position] != ss[search_string_position]) {cout << "mismatch on label" << endl; return -1;}
+        if(s[position] != ss[search_string_position]) {return -1;}
         else {
           search_string_position++;
           if(search_string_position == ss.size()) {
@@ -209,7 +206,6 @@ public:
 
 //    for(size_t n=0;n<ss.size();n++) ss[n] =  transcoder.convert(ss[n]);
     int p = find_tree_position(ss);
-    cout << "found position: " << p << endl;
 
     if(p == -1) {
       return res;
@@ -221,8 +217,6 @@ public:
     int nl = p_tmp.get_next_left_leaf();
     int nr = p_tmp.get_next_right_leaf();
 
-    cout << "nl: " << nl << endl;
-    cout << "nr: " << nr << endl;
 
     if(p_tmp.is_leaf()) {
       res.push_back(s.size()-p_tmp.get_depth());
@@ -240,9 +234,7 @@ public:
       if(c==nr) { stop=true; }
 
       //bool nochild=true;
-      cout << "s.size: " << s.size() << endl; 
-      cout << "c_tmp.get_depth(): " << c_tmp.get_depth() << endl;
-      if(c_tmp.get_label_start() != -1) { res.push_back(s.size()-c_tmp.get_depth()); cout << "adding pos: " << res[res.size()-1] << endl;}
+      if(c_tmp.get_label_start() != -1) { res.push_back(s.size()-c_tmp.get_depth()); }
 
       c = c_tmp.get_next_right_leaf();
 
