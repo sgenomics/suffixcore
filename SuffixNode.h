@@ -23,7 +23,10 @@
 #include <deque>
 #include <stdlib.h>
 #include <stdint.h>
+#include <sstream>
+#include "stringify.h"
 #include "tialloc.h"
+#include <fstream>
 
 using namespace std;
 
@@ -426,24 +429,7 @@ public:
     }
     return 0;
   }
-/*
-  uint8_t get_symbols_size_stored() const {
-    if(get_data_type() == 2) return 0;
-    if(get_data_type() == 1) {
-      uint8_t m_symbol_size =  ((normal_node_data *)data)->m_symbols_size;
-      if(m_symbol_size != get_symbols_size()) {
-        cout << "ERROR: size mismatch: " << (int) m_symbol_size << " " << (int) get_symbols_size() << endl;
-        for(size_t n=0;n<get_allocated_symbol_size();n++) {
-          cout << (int) get_symbol_by_idx(n).symbol << " ";
-          cout << (int) get_symbol_by_idx(n).index << endl;
-        }
-        int *i=0;*i=0;
-      }
-      return m_symbol_size;
-    }
-    return 0;
-  }
-*/
+
   void set_symbols_size(size_t size) {
     if(get_data_type() == 1) {
       clear_symbols(size);
@@ -560,6 +546,36 @@ public:
 
   void set_data(void *d) {
     data = d;
+  }
+
+  static void save_members(string filename) {
+    ofstream membersfile(filename.c_str(),ios_base::app); // open for append
+    membersfile << "suffixnode_end_marker="       << end_marker       << endl;
+    membersfile << "suffixnode_end_marker_value=" << end_marker_value << endl;
+    membersfile << "suffixnode_root="             << root             << endl;
+    membersfile.close();
+  }
+
+  static void load_members(string filename) {
+    ifstream membersfile(filename.c_str());
+  
+    for(;!membersfile.eof();) {
+      string line;
+      getline(membersfile,line);
+
+      stringstream cline(line);
+
+      string member;
+      string value;
+      getline(cline,member,'=');
+      getline(cline,value);
+
+      if(member == "suffixnode_end_marker"      ) end_marker       = convertTo<int32_t>(value); 
+      if(member == "suffixnode_end_marker_value") end_marker_value = convertTo<int32_t>(value); 
+      if(member == "suffixnode_root"            ) root             = convertTo<int32_t>(value); 
+    }
+    membersfile.close();
+    SuffixNode::load_members(filename);
   }
 
 private:

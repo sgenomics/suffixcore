@@ -166,10 +166,14 @@ public:
     size_t search_string_position = 0;
     if(current_node == -1) return -1;
     for(;search_string_position < ss.size();) {
+      cout << "current_node: " << current_node << endl;
       suffixnode_t current_node_tmp = store.get(current_node);
       // follow edge label
       for(int position=current_node_tmp.get_label_start();position <= current_node_tmp.get_label_end_translated();position++) {
-        if(s[position] != ss[search_string_position]) {return -1;}
+
+        cout << "s: " << s[position] << endl;
+        cout << "ss: " << ss[search_string_position] << endl;
+        if(s[position] != ss[search_string_position]) {cout << "mismatch on label" << endl; return -1;}
         else {
           search_string_position++;
           if(search_string_position == ss.size()) {
@@ -199,23 +203,13 @@ public:
     return res;
   }
 
-/*
-  vector<size_t> all_occurs(string ss,size_t max_hits=-1) {
-
-    vector<symbol_type> search;
-    for(size_t n=0;n<ss.size();n++) {
-      search.push_back(ss[n]);
-    }
-
-    return all_occurs(search,max_hits);
-  }
-*/
   vector<size_t> all_occurs(vector<symbol_type> ss,size_t max_hits=-1) {
     //cout << "find all occurs..." << endl;
     vector<size_t> res;
 
 //    for(size_t n=0;n<ss.size();n++) ss[n] =  transcoder.convert(ss[n]);
     int p = find_tree_position(ss);
+    cout << "found position: " << p << endl;
 
     if(p == -1) {
       return res;
@@ -226,6 +220,9 @@ public:
     suffixnode_t p_tmp = store.get(p);
     int nl = p_tmp.get_next_left_leaf();
     int nr = p_tmp.get_next_right_leaf();
+
+    cout << "nl: " << nl << endl;
+    cout << "nr: " << nr << endl;
 
     if(p_tmp.is_leaf()) {
       res.push_back(s.size()-p_tmp.get_depth());
@@ -243,7 +240,9 @@ public:
       if(c==nr) { stop=true; }
 
       //bool nochild=true;
-      if(c_tmp.get_label_start() != -1) { res.push_back(s.size()-c_tmp.get_depth()); }//TODO: err somehow convert this back in to correct location?!?
+      cout << "s.size: " << s.size() << endl; 
+      cout << "c_tmp.get_depth(): " << c_tmp.get_depth() << endl;
+      if(c_tmp.get_label_start() != -1) { res.push_back(s.size()-c_tmp.get_depth()); cout << "adding pos: " << res[res.size()-1] << endl;}
 
       c = c_tmp.get_next_right_leaf();
 
@@ -859,6 +858,7 @@ public:
     membersfile << "suffixtree_first_non_leaf_node="  << first_non_leaf_node  << endl;
     membersfile << "suffixtree_first_non_leaf_n="     << first_non_leaf_n     << endl;
     membersfile.close();
+    SuffixNode::save_members(filename);
   }
 
   void load_members(string filename) {
@@ -883,6 +883,7 @@ public:
       if(member == "suffixtree_first_non_leaf_n"     ) first_non_leaf_n     = convertTo<int>(value); 
     }
     membersfile.close();
+    SuffixNode::load_members(filename);
   }
 
   store_type s;
