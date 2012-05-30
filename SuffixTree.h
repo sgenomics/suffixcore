@@ -27,14 +27,15 @@
 #include "SuffixNode.h"
 #include "stringify.h"
 
-#define suffixnode_t SuffixNode&
 
 using namespace std;
 
 class SuffixTree {
 
 public:
-  SuffixTree() {
+  SuffixTree(bool uninit=false) {
+
+    if(uninit==true) return;
  
     SuffixNode::store = &store;
    
@@ -784,12 +785,8 @@ public:
   void dump_stats() {
     cout << "string size: " << s.size() << endl; 
     cout << "node count : " << store.size() << endl;
-    // size_t end_node = 0;
 
     store.stats();
-
-    cout << "Unpopulated SuffixNode size is: " << sizeof(SuffixNode) << endl;
-    cout << "Unpopulated SuffixTree size is: " << sizeof(SuffixTree) << endl;
   }
 
   bool validate_positions() {
