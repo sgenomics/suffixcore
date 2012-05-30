@@ -39,7 +39,6 @@ public:
     SuffixNode root(0,-1,-1);
     root.set_suffix_link(0);
     root.set_parent(0);
-    split_count = 0;
     root_node = store.push_back(root);
 
     split_distance = 0;
@@ -47,9 +46,6 @@ public:
     split_point_position = 0;
 
     SuffixNode::end_marker_value = -1;
-    posrem=0;
-    first_insert = true;
-    first_node = 0;
     first_non_leaf_node = 0;
     first_non_leaf_n = 0;
   }
@@ -513,7 +509,6 @@ public:
     last_node = first_non_leaf_node;
     bool first=true;
     bool split=false;
-    int  new_split_count = split_count;
 
     int predict_node = 0;
     int predict_pos = 0;
@@ -525,7 +520,6 @@ public:
     for(size_t n=first_non_leaf_n;n<s.size();n++) {
 
       suffixnode_t last_node_tmp1 = store.get(last_node);
-      //last_node_sl = last_node_tmp1.get_suffix_link();
 
       int newnode;
 
@@ -589,10 +583,6 @@ public:
 
       predict_pos = fpos;
 
-      if(split == true) {
-        new_split_count = 0;
-      }
-
       suffixnode_t last_node_tmp2 = store.get(last_node); // required.
       if((!first) && (split || (at_end && last_at_end && newnode_tmp.is_leaf()))) {
         if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
@@ -617,18 +607,12 @@ public:
       last_node = newnode; // was newnode
       if((!split) && (c > 0) && !at_end) {
         first=false;
-        first_insert=false;
         break;
       }
       c++;
 
       first=false;
-      first_insert=false;
     }
-
-    split_count = new_split_count+1;
-    //validate_tree();
-    //dump();
   }
 
   void dump() {
@@ -869,17 +853,11 @@ public:
   store_type s;
   suffixnodestore_type store;
 
-//  Transcode transcoder;
-
-  int root_node;
+  int root_node;             ///< The root node, usually 0
   int split_point_node;      ///< Point of last insertion/split in tree (node index)
   int split_point_position;  ///< Point of last insertion/split in tree (label position)
   int split_distance;        ///< distance to last split point
   int current_node;          ///< Current node in tree (active point?)
-  int posrem;
-  bool first_insert;
-  int64_t first_node;
-  int64_t split_count;
   int first_non_leaf_node;
   int first_non_leaf_n;
 };
