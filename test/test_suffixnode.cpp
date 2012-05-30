@@ -3,8 +3,8 @@
 #include <vector>
 #include <stdlib.h>
 #include "UnitTest.h"
+#include "global_defs.h"
 #include "SuffixNode.h"
-#include "../global_defs.h"
 
 using namespace std;
 
