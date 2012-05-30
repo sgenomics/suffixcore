@@ -575,7 +575,6 @@ public:
       if(member == "suffixnode_root"            ) root             = convertTo<int32_t>(value); 
     }
     membersfile.close();
-    SuffixNode::load_members(filename);
   }
 
 private:
