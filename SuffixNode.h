@@ -71,11 +71,12 @@ public:
     resize_for_symbols (res);
     set_symbols_size   (0);
     set_parent         (-1);
-    set_label_start    (-1);
-    set_label_end      (-1);
-    set_next_left_leaf (-1);
-    set_next_right_leaf(-1);
-    set_depth          (-1);
+    //set_label_start    (-1);
+    //set_label_end      (-1);
+    //set_next_left_leaf (-1);
+    //set_next_right_leaf(-1);
+    //set_depth          (-1);
+
   }
 
   SuffixNode(const SuffixNode& other) {
@@ -477,7 +478,11 @@ public:
   void resize_for_symbols(int32_t new_symbol_size) {
 
     int32_t old_symbol_size = get_symbols_size();
-    int old_data_type = get_data_type();
+
+    int old_data_type=get_data_type(); //0;
+//    if(old_symbol_size > 0) old_data_type = 1; else {
+//      if(data == 0) old_data_type = 0; else old_data_type = 2;     
+//    }
 
     // SuffixNodes with two children will almost immediately receive another.
     // These unused allocations will cause fragmention in tialloc, so we allocate 2 to start with.
