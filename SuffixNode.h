@@ -42,11 +42,11 @@ class SymbolPair {
 
 class normal_node_data {
 public:
-  int32_t m_depth;
   int32_t m_parent;
   int32_t m_suffix_link;
   int32_t m_label_start;
   int32_t m_next_right_leaf;
+  int32_t m_depth;
   int32_t m_next_left_leaf;
   int32_t m_label_end;
 } __attribute__((__packed__));
@@ -150,9 +150,11 @@ public:
   }
 
   int32_t get_child(symbol_type symbol) {
-    if(get_symbols_size() == 0) return -1;
+    size_t size = get_symbols_size();
 
-    for(size_t n=0;n<get_symbols_size();n++) {
+    if(size == 0) return -1;
+
+    for(size_t n=0;n<size;n++) {
       if(get_symbol_by_idx(n).symbol == symbol) return get_symbol_by_idx(n).index;
     }
     return -1;
@@ -167,13 +169,16 @@ public:
 
   void set_child(symbol_type n,int32_t m) {
 
-    if(get_symbols_size() == 0) {
+    size_t original_size = get_symbols_size();
+
+    if(original_size == 0) {
       if(m == -1) return;
  
       resize_for_symbols(1);
       set_symbols_size(1);
       get_symbol_by_idx(0).symbol = n;
       get_symbol_by_idx(0).index  = m;
+      return;
     }
 
     int child = child_local_idx(n);
@@ -182,15 +187,15 @@ public:
         get_symbol_by_idx(child).index = m;
       } else {
         // index for -1 means erase the entry.
-        for(size_t i=child;i<(get_symbols_size()-1);i++) {
+        for(size_t i=child;i<(original_size-1);i++) {
           get_symbol_by_idx(i) = get_symbol_by_idx(i+1);
         }
-        resize_for_symbols(get_symbols_size()-1);
-        set_symbols_size(get_symbols_size()-1);
+        resize_for_symbols(original_size-1);
+        set_symbols_size(original_size-1);
       }
     } else {
-      resize_for_symbols(get_symbols_size()+1);
-      int idx = get_symbols_size();
+      resize_for_symbols(original_size+1);
+      int idx = original_size;
       get_symbol_by_idx(idx).symbol = n;
       get_symbol_by_idx(idx).index  = m;
       set_symbols_size(idx+1);
@@ -332,36 +337,43 @@ public:
   }
 
   uint32_t get_parent() const {
-    if(get_data_type() == 1) return ((normal_node_data *)data)->m_parent;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_parent;
+    return ((   end_node_data *)data)->m_parent;
+ //   if(get_data_type() == 1) return ((normal_node_data *)data)->m_parent;
+ //   if(get_data_type() == 2) return 
     return -1;
   }
 
   void set_parent(int32_t parent_in) {
-    if(get_data_type() == 1) ((normal_node_data *)data)->m_parent = parent_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_parent = parent_in;
+    ((   end_node_data *)data)->m_parent = parent_in;
+    
+   // if(get_data_type() == 1) ((normal_node_data *)data)->m_parent = parent_in;
+   // if(get_data_type() == 2) 
   }
 
   int32_t get_suffix_link() const {
-    if(get_data_type() == 1) return ((normal_node_data *)data)->m_suffix_link;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_suffix_link;
+    return ((   end_node_data *)data)->m_suffix_link;
+ //   if(get_data_type() == 1) return ((normal_node_data *)data)->m_suffix_link;
+ //   if(get_data_type() == 2) return
     return -1;
   }
   
   void set_suffix_link(int32_t suffix_link_in) {
-    if(get_data_type() == 1) ((normal_node_data *)data)->m_suffix_link = suffix_link_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_suffix_link = suffix_link_in;
+((   end_node_data *)data)->m_suffix_link = suffix_link_in;
+ //   if(get_data_type() == 1) ((normal_node_data *)data)->m_suffix_link = suffix_link_in;
+ //   if(get_data_type() == 2) 
   }
 
   int32_t get_label_start() const {
-    if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_start;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_label_start;
+    return ((   end_node_data *)data)->m_label_start;
+ //   if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_start;
+ //   if(get_data_type() == 2) return 
     return -1;
   }
 
   void set_label_start(int32_t label_start_in) {
-    if(get_data_type() == 1) ((normal_node_data *)data)->m_label_start = label_start_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_label_start = label_start_in;
+    ((   end_node_data *)data)->m_label_start = label_start_in;
+  //  if(get_data_type() == 1) ((normal_node_data *)data)->m_label_start = label_start_in;
+  //  if(get_data_type() == 2)
   }
 
   int32_t get_label_end() const {
@@ -392,14 +404,16 @@ public:
   }
 
   int32_t get_next_right_leaf() const {
-    if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_right_leaf;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
+    return ((   end_node_data *)data)->m_next_right_leaf;
+  //  if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_right_leaf;
+  //  if(get_data_type() == 2) return
     return -1;
   }
 
   void set_next_right_leaf(int32_t next_right_leaf_in) {
-    if(get_data_type() == 1) ((normal_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
-    if(get_data_type() == 2) ((   end_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
+    ((   end_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
+  //  if(get_data_type() == 1) ((normal_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
+  //  if(get_data_type() == 2)
   }
 
   // Symbols access

@@ -33,4 +33,6 @@
 #define store_type vector<symbol_type>
 #include "SuffixNodeStoreMemVec.h"
 
+#define suffixnode_t SuffixNode&
+
 #endif
