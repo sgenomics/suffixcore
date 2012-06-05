@@ -177,8 +177,9 @@ public:
  
       resize_for_symbols(1);
       set_symbols_size(1);
-      get_symbol_by_idx(0).symbol = n;
-      get_symbol_by_idx(0).index  = m;
+      SymbolPair &p = get_symbol_by_idx(0);
+      p.symbol = n;
+      p.index  = m;
       return;
     }
 
@@ -192,14 +193,15 @@ public:
           get_symbol_by_idx(i) = get_symbol_by_idx(i+1);
         }
         resize_for_symbols(original_size-1);
-        set_symbols_size(original_size-1);
+        //set_symbols_size(original_size-1);
       }
     } else {
       resize_for_symbols(original_size+1);
       int idx = original_size;
-      get_symbol_by_idx(idx).symbol = n;
-      get_symbol_by_idx(idx).index  = m;
-      set_symbols_size(idx+1);
+      SymbolPair &p = get_symbol_by_idx(idx);
+      p.symbol = n;
+      p.index  = m;
+      // set_symbols_size(idx+1);
     }
   }
 
@@ -514,13 +516,13 @@ public:
       data = realloc(data,alloc_size);
       #endif
 
-      set_symbols_size(old_symbol_size);
+     // set_symbols_size(old_symbol_size);
       int new_data_type = get_data_type();
 
       if((old_data_type == 2) && (new_data_type == 1)) reformat_endnode_to_normalnode();
-      if((old_data_type == 1) && (new_data_type == 2)) reformat_normalnode_to_endnode();
+   //   if((old_data_type == 1) && (new_data_type == 2)) reformat_normalnode_to_endnode();
 
-      clear_symbols(old_symbol_size);
+      if(new_symbol_size > old_symbol_size) clear_symbols(old_symbol_size);
     }
   }
 
