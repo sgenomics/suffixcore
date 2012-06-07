@@ -16,8 +16,8 @@
 #include "global_defs.h"
 #include "SuffixNode.h"
 
-int SuffixNode::end_marker = -1;
-int SuffixNode::end_marker_value = -1;
-int SuffixNode::root = 0;
+index_type SuffixNode::end_marker = invalid_idx;
+index_type SuffixNode::end_marker_value = -1;
+index_type SuffixNode::root = 0;
 suffixnodestore_type *SuffixNode::store = 0;
   

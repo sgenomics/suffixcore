@@ -37,17 +37,17 @@ void SuffixNodeStoreMemVec::set_compactmode(bool compact_mode) {
   compact_enabled=compact_mode;
 }
 
-size_t SuffixNodeStoreMemVec::push_back_norm() {
+index_type SuffixNodeStoreMemVec::push_back_norm() {
   SuffixNode s;
   return push_back(s,2);
 }
 
-size_t SuffixNodeStoreMemVec::push_back_end() {
+index_type SuffixNodeStoreMemVec::push_back_end() {
   SuffixNode s;
   return push_back(s);
 }
 
-size_t SuffixNodeStoreMemVec::push_back(SuffixNode &s,int resize) {
+index_type SuffixNodeStoreMemVec::push_back(SuffixNode &s,int resize) {
 
   if(storage_area_real_size > storage_area_size) {
     storage_area[storage_area_size].wipe();
@@ -66,22 +66,22 @@ size_t SuffixNodeStoreMemVec::push_back(SuffixNode &s,int resize) {
   return storage_area_size-1;
 }
 
-SuffixNode &SuffixNodeStoreMemVec::get(int idx) {
+SuffixNode &SuffixNodeStoreMemVec::get(index_type idx) {
   return storage_area[idx];
 }
 
-void SuffixNodeStoreMemVec::set(int idx, SuffixNode &s) {
+void SuffixNodeStoreMemVec::set(index_type idx, SuffixNode &s) {
 }
 
-int SuffixNodeStoreMemVec::size() {
+index_type SuffixNodeStoreMemVec::size() {
   return storage_area_size;
 }
 
-int SuffixNodeStoreMemVec::next_idx(int i) {
+index_type SuffixNodeStoreMemVec::next_idx(index_type i) {
   return i+1;
 }
 
-int SuffixNodeStoreMemVec::last_idx() {
+index_type SuffixNodeStoreMemVec::last_idx() {
   return storage_area_size-1;
 }
 

@@ -33,21 +33,21 @@ class SuffixNodeStoreMemVec {
 public:
   SuffixNodeStoreMemVec();
   void set_compactmode(bool compact_mode);
-  size_t push_back_norm();
-  size_t push_back_end();
-  size_t push_back(SuffixNode &s,int resize=-1);
-  SuffixNode &get(int idx);
-  void set(int idx, SuffixNode &s);
-  int size();
-  int next_idx(int i);
-  int last_idx();
+  index_type push_back_norm();
+  index_type push_back_end();
+  index_type push_back(SuffixNode &s,int resize=-1);
+  SuffixNode &get(index_type idx);
+  void set(index_type idx, SuffixNode &s);
+  index_type size();
+  index_type next_idx(index_type i);
+  index_type last_idx();
   void stats();
   void force_compact();
   void compact();
 
   SuffixNode *storage_area;
-  size_t      storage_area_size;
-  size_t      storage_area_real_size;
+  index_type  storage_area_size;
+  index_type  storage_area_real_size;
   bool        compact_enabled;
 };
 

@@ -33,30 +33,30 @@ using namespace std;
 class SymbolPair {
   public:
 
-  SymbolPair(symbol_type s,int32_t i) : symbol(s),index(i) {
+  SymbolPair(symbol_type s,index_type i) : symbol(s),index(i) {
   }
 
   symbol_type symbol;
-  int32_t index;
+  index_type index;
 } __attribute__((__packed__));
 
 class normal_node_data {
 public:
-  int32_t m_parent;
-  int32_t m_suffix_link;
-  int32_t m_label_start;
-  int32_t m_next_right_leaf;
-  int32_t m_depth;
-  int32_t m_next_left_leaf;
-  int32_t m_label_end;
+  index_type m_parent;
+  index_type m_suffix_link;
+  index_type m_label_start;
+  index_type m_next_right_leaf;
+  index_type m_depth;
+  index_type m_next_left_leaf;
+  index_type m_label_end;
 } __attribute__((__packed__));
 
 class end_node_data {
 public:
-  int32_t m_parent;
-  int32_t m_suffix_link;
-  int32_t m_label_start;
-  int32_t m_next_right_leaf;
+  index_type m_parent;
+  index_type m_suffix_link;
+  index_type m_label_start;
+  index_type m_next_right_leaf;
 } __attribute__((__packed__));
 
 class SuffixNode {
@@ -70,13 +70,7 @@ public:
     data = 0;
     resize_for_symbols (res);
     set_symbols_size   (0);
-    set_parent         (-1);
-    //set_label_start    (-1);
-    //set_label_end      (-1);
-    //set_next_left_leaf (-1);
-    //set_next_right_leaf(-1);
-    //set_depth          (-1);
-
+    set_parent         (invalid_idx);
   }
 
   SuffixNode(const SuffixNode& other) {
@@ -84,7 +78,7 @@ public:
     *this = other;
   }
 
-  SuffixNode(int32_t parent_in,int32_t label_start_in,int32_t depth_in) {
+  SuffixNode(index_type parent_in,index_type label_start_in,index_type depth_in) {
 
     data = 0;
     resize_for_symbols(0);
@@ -95,17 +89,17 @@ public:
 
     set_suffix_link(0);
 
-    set_label_end       (-1);
-    set_next_left_leaf  (-1);
-    set_next_right_leaf (-1);
+    set_label_end       (invalid_idx);
+    set_next_left_leaf  (invalid_idx);
+    set_next_right_leaf (invalid_idx);
   }
 
   void clear() {
     set_suffix_link(0);
 
-    set_label_end       (-1);
-    set_next_left_leaf  (-1);
-    set_next_right_leaf (-1);
+    set_label_end       (invalid_idx);
+    set_next_left_leaf  (invalid_idx);
+    set_next_right_leaf (invalid_idx);
   }
 
   ~SuffixNode() {
@@ -119,8 +113,8 @@ public:
     return false;
   }
 
-  int get_label_length() {
-    if(get_label_start() == -1) return 0;
+  index_type get_label_length() {
+    if(get_label_start() == invalid_idx) return 0;
 
     if(get_label_end() == end_marker) {
       return end_marker_value-get_label_end(); 
@@ -129,8 +123,8 @@ public:
     return get_label_end()-get_label_start();
   }
 
-  int get_label_length_r() {
-    if(get_label_start() == -1) return 0;
+  index_type get_label_length_r() {
+    if(get_label_start() == invalid_idx) return 0;
 
     if(get_label_end() == end_marker) {
       return end_marker_value-get_label_start(); 
@@ -139,41 +133,41 @@ public:
     return get_label_end()-get_label_start();
   }
 
-  int find_child(int c) {
+  index_type find_child(index_type c) {
     for(size_t n=0;n<get_symbols_size();n++) {
       if(get_symbol_by_idx(n).index == c) return get_symbol_by_idx(n).symbol;
     }
-    return -1;
+    return invalid_idx;
   }
 
   int32_t child_count() {
     return get_symbols_size();
   }
 
-  int32_t get_child(symbol_type symbol) {
+  index_type get_child(symbol_type symbol) {
     size_t size = get_symbols_size();
 
-    if(size == 0) return -1;
+    if(size == 0) return invalid_idx;
 
     for(size_t n=0;n<size;n++) {
       if(get_symbol_by_idx(n).symbol == symbol) return get_symbol_by_idx(n).index;
     }
-    return -1;
+    return invalid_idx;
   }
 
   int32_t child_local_idx(symbol_type symbol) {
     for(size_t n=0;n<get_symbols_size();n++) {
       if(get_symbol_by_idx(n).symbol == symbol) return n;
     }
-    return -1;
+    return invalid_idx;
   }
 
-  void set_child(symbol_type n,int32_t m) {
+  void set_child(symbol_type n,index_type m) {
 
     size_t original_size = get_symbols_size();
 
     if(original_size == 0) {
-      if(m == -1) return;
+      if(m == invalid_idx) return;
  
       resize_for_symbols(1);
       set_symbols_size(1);
@@ -185,10 +179,10 @@ public:
 
     int child = child_local_idx(n);
     if(child != -1) {
-      if(m != -1) {
+      if(m != invalid_idx) {
         get_symbol_by_idx(child).index = m;
       } else {
-        // index for -1 means erase the entry.
+        // index for invalid_idx means erase the entry.
         for(size_t i=child;i<(original_size-1);i++) {
           get_symbol_by_idx(i) = get_symbol_by_idx(i+1);
         }
@@ -209,12 +203,12 @@ public:
     return equal(other); 
   }
 
-  bool is_child(int32_t idx) {
+  bool is_child(index_type idx) {
     for(size_t n=0;n<get_symbols_size();n++) if(get_symbol_by_idx(n).index == idx) return true;
     return false;
   }
 
-  int32_t next_child(int32_t idx) {
+  index_type next_child(index_type idx) {
     bool next=false;
     for(size_t n=0;n<get_symbols_size();n++) {
       if(next==true) {
@@ -222,16 +216,16 @@ public:
       }
       if(get_symbol_by_idx(n).index == idx) { next=true; }
     }
-    return -1;
+    return invalid_idx;
   }
 
-  int32_t get_first_child() {
-    if(get_symbols_size() == 0) return -1;
+  index_type get_first_child() {
+    if(get_symbols_size() == 0) return invalid_idx;
     return get_symbol_by_idx(0).index;
   }
 
-  int32_t get_last_child() {
-    if(get_symbols_size() == 0) return -1;
+  index_type get_last_child() {
+    if(get_symbols_size() == 0) return invalid_idx;
     return get_symbol_by_idx(get_symbols_size()-1).index;
   }
 
@@ -284,7 +278,7 @@ public:
     return *this;
   }
 
-  int32_t get_label_end_translated() {
+  index_type get_label_end_translated() {
     if(get_label_end() == end_marker) {
       return end_marker_value;
     }
@@ -307,116 +301,91 @@ public:
 
 // accessors
 public:
-  int32_t get_depth_raw() const {
+  index_type get_depth_raw() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_depth;
     if(get_data_type() == 2) {
-      if(get_parent() == -1) return 0;
+      if(get_parent() == invalid_idx) return 0;
       return store->get(get_parent()).get_depth();
-      //return (   (end_node_data *)data)->m_depth;
     }
 
-    return -1;
+    return invalid_idx;
   }
 
-  void set_depth_raw(int32_t depth_in) {
+  void set_depth_raw(index_type depth_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_depth = depth_in;
     //if(get_data_type() == 2) ((   end_node_data *)data)->m_depth = depth_in;
     // something clever for end_node?
   }
 
-  int32_t get_depth() const {
+  index_type get_depth() const {
     //TODO: fix the store.get
  //   if(get_data_type() == 2) return store.get(get_parent()).get_depth() + (end_marker_value-get_label_start());
 
-    if(get_label_start() == -1) return 0;
-    if(get_label_end()   == -1) return get_depth_raw() + (end_marker_value-get_label_start())+1;
+    if(get_label_start() == invalid_idx) return 0;
+    if(get_label_end()   == invalid_idx) return get_depth_raw() + (end_marker_value-get_label_start())+1;
     return get_depth_raw();
   }
 
-  void set_depth(int32_t depth_in) {
+  void set_depth(index_type depth_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_depth = depth_in;
     //if(get_data_type() == 2) ((   end_node_data *)data)->m_depth = depth_in;
     // something clever for end_node?
   }
 
-  uint32_t get_parent() const {
+  index_type get_parent() const {
     return ((   end_node_data *)data)->m_parent;
- //   if(get_data_type() == 1) return ((normal_node_data *)data)->m_parent;
- //   if(get_data_type() == 2) return 
-    return -1;
   }
 
-  void set_parent(int32_t parent_in) {
+  void set_parent(index_type parent_in) {
     ((   end_node_data *)data)->m_parent = parent_in;
-    
-   // if(get_data_type() == 1) ((normal_node_data *)data)->m_parent = parent_in;
-   // if(get_data_type() == 2) 
   }
 
-  int32_t get_suffix_link() const {
+  index_type get_suffix_link() const {
     return ((   end_node_data *)data)->m_suffix_link;
- //   if(get_data_type() == 1) return ((normal_node_data *)data)->m_suffix_link;
- //   if(get_data_type() == 2) return
-    return -1;
   }
   
-  void set_suffix_link(int32_t suffix_link_in) {
-((   end_node_data *)data)->m_suffix_link = suffix_link_in;
- //   if(get_data_type() == 1) ((normal_node_data *)data)->m_suffix_link = suffix_link_in;
- //   if(get_data_type() == 2) 
+  void set_suffix_link(index_type suffix_link_in) {
+    ((   end_node_data *)data)->m_suffix_link = suffix_link_in;
   }
 
-  int32_t get_label_start() const {
+  index_type get_label_start() const {
     return ((   end_node_data *)data)->m_label_start;
- //   if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_start;
- //   if(get_data_type() == 2) return 
-    return -1;
   }
 
-  void set_label_start(int32_t label_start_in) {
+  void set_label_start(index_type label_start_in) {
     ((   end_node_data *)data)->m_label_start = label_start_in;
-  //  if(get_data_type() == 1) ((normal_node_data *)data)->m_label_start = label_start_in;
-  //  if(get_data_type() == 2)
   }
 
-  int32_t get_label_end() const {
+  index_type get_label_end() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_label_end;
-    if(get_data_type() == 2) return -1;
-    // something clever for end_node?
-    return -1;
+    if(get_data_type() == 2) return invalid_idx;
+    return invalid_idx;
   }
 
-  void set_label_end(int32_t label_end_in) {
+  void set_label_end(index_type label_end_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_label_end = label_end_in;
-    if(get_data_type() == 2) if((label_end_in != -1) && (label_end_in != end_marker)) {
+    if(get_data_type() == 2) if((label_end_in != invalid_idx) && (label_end_in != end_marker)) {
       cout << "ERROR SETTING LABEL_END ON END NODE" << endl;
     }
-    
-    // something clever for end_node?
   }
 
-  int32_t get_next_left_leaf() const {
+  index_type get_next_left_leaf() const {
     if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_left_leaf;
     if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
-    return -1;
+    return invalid_idx;
   }
 
-  void set_next_left_leaf(int32_t next_left_leaf_in) {
+  void set_next_left_leaf(index_type next_left_leaf_in) {
     if(get_data_type() == 1) ((normal_node_data *)data)->m_next_left_leaf = next_left_leaf_in;
- //   if(get_data_type() == 2) ((   end_node_data *)data)->m_next_leaf      = next_left_leaf_in;
   }
 
-  int32_t get_next_right_leaf() const {
+  index_type get_next_right_leaf() const {
     return ((   end_node_data *)data)->m_next_right_leaf;
-  //  if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_right_leaf;
-  //  if(get_data_type() == 2) return
-    return -1;
+    return invalid_idx;
   }
 
-  void set_next_right_leaf(int32_t next_right_leaf_in) {
+  void set_next_right_leaf(index_type next_right_leaf_in) {
     ((   end_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
-  //  if(get_data_type() == 1) ((normal_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
-  //  if(get_data_type() == 2)
   }
 
   // Symbols access
@@ -439,8 +408,9 @@ public:
     if(get_data_type() == 1) {
       int t_symbol_size=0;
       t_symbol_size = get_allocated_symbol_size();
-      for(int n=t_symbol_size-1;((get_symbol_by_idx(n).symbol == 0) &&
-         (get_symbol_by_idx(n).index  == -1)) && (n>=0);n--) {t_symbol_size--;}
+      
+      for(int n=t_symbol_size-1;(n>=0) && ((get_symbol_by_idx(n).symbol == 0) &&
+         (get_symbol_by_idx(n).index  == invalid_idx));n--) {t_symbol_size--;}
       if(t_symbol_size < 0) return 0;
       return t_symbol_size;
     }
@@ -450,16 +420,11 @@ public:
   void set_symbols_size(size_t size) {
     if(get_data_type() == 1) {
       clear_symbols(size);
-   //   ((normal_node_data *)data)->m_symbols_size = size;
     }
   }
 
-  SymbolPair &get_symbol_by_idx(int32_t idx) const {
-    //if(get_data_type() == 0) return SymbolPair(-1,-1); // uh oh
-    //if(get_data_type() == 2) return SymbolPair(-1,-1);
-    //if(get_data_type() == 1) {
+  SymbolPair &get_symbol_by_idx(index_type idx) const {
     return *((SymbolPair *) (((uint8_t *)data)+(sizeof(normal_node_data)+(idx*sizeof(SymbolPair)))));
-    //}
   }
 
   void copy_children(const SuffixNode &other) {
@@ -482,9 +447,6 @@ public:
     int32_t old_symbol_size = get_symbols_size();
 
     int old_data_type=get_data_type(); //0;
-//    if(old_symbol_size > 0) old_data_type = 1; else {
-//      if(data == 0) old_data_type = 0; else old_data_type = 2;     
-//    }
 
     // SuffixNodes with two children will almost immediately receive another.
     // These unused allocations will cause fragmention in tialloc, so we allocate 2 to start with.
@@ -520,7 +482,6 @@ public:
       int new_data_type = get_data_type();
 
       if((old_data_type == 2) && (new_data_type == 1)) reformat_endnode_to_normalnode();
-   //   if((old_data_type == 1) && (new_data_type == 2)) reformat_normalnode_to_endnode();
 
       if(new_symbol_size > old_symbol_size) clear_symbols(old_symbol_size);
     }
@@ -531,13 +492,13 @@ public:
 
     for(size_t n=old_size;n<get_allocated_symbol_size();n++) {
       get_symbol_by_idx(n).symbol = 0;
-      get_symbol_by_idx(n).index  = -1;
+      get_symbol_by_idx(n).index  = invalid_idx;
     }
   }
  
   void reformat_endnode_to_normalnode() {
-    set_next_left_leaf (-1);
-    set_label_end      (-1);
+    set_next_left_leaf (invalid_idx);
+    set_label_end      (invalid_idx);
     set_symbols_size   (0);
   }
 
@@ -591,9 +552,9 @@ public:
       getline(cline,member,'=');
       getline(cline,value);
 
-      if(member == "suffixnode_end_marker"      ) end_marker       = convertTo<int32_t>(value); 
-      if(member == "suffixnode_end_marker_value") end_marker_value = convertTo<int32_t>(value); 
-      if(member == "suffixnode_root"            ) root             = convertTo<int32_t>(value); 
+      if(member == "suffixnode_end_marker"      ) end_marker       = convertTo<index_type>(value); 
+      if(member == "suffixnode_end_marker_value") end_marker_value = convertTo<index_type>(value); 
+      if(member == "suffixnode_root"            ) root             = convertTo<index_type>(value); 
     }
     membersfile.close();
   }
@@ -603,9 +564,9 @@ private:
 
 public:
   static suffixnodestore_type *store;
-  static int32_t end_marker;
-  static int32_t end_marker_value;
-  static int32_t root;
+  static index_type end_marker;
+  static index_type end_marker_value;
+  static index_type root;
 } __attribute__((__packed__));
 
 
