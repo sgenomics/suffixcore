@@ -13,11 +13,29 @@
  * Can modify source-code but cannot distribute modifications (derivative works).
  */
 
-#include "global_defs.h"
-#include "SuffixNode.h"
+#ifndef GLOBALDEFS
+#define GLOBALDEFS
 
-index_type SuffixNode::end_marker = invalid_idx;
-index_type SuffixNode::end_marker_value = -1;
-index_type SuffixNode::root = 0;
-suffixnodestore_type *SuffixNode::store = 0;
-  
+#define index_type uint32_t
+#define invalid_idx 4294967295
+
+#define suffixnodestore_type SuffixNodeStoreMemVec
+
+//define one of these to delect a storage mode
+#define object_store_type ObjectStoreMemVec
+
+//define one of these to select a memory allocator
+//#define use_malloc 1
+#define use_tialloc 1
+
+#define alphabet_size  255
+#define symbol_type uint16_t
+#define symbol_size  255
+#define final_symbol 254
+
+#define store_type vector<symbol_type>
+#include "SuffixNodeStoreMemVec.h"
+
+#define suffixnode_t SuffixNode&
+
+#endif

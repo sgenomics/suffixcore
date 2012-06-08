@@ -17,9 +17,11 @@
 #include <string>
 #include <vector>
 #include <stdlib.h>
+#include "global_defs.h"
 #include "SuffixTree.h"
 #include <stdint.h>
 #include <fstream>
+#include "SearchTrans.h"
 
 using namespace std;
 
@@ -28,7 +30,11 @@ int main(int argc,char ** argv) {
   ifstream input_file(argv[1]);
 
   SuffixTree st;
-  //st.set_compactmode(false);
+  //SearchTrans st;
+
+  cout << "SuffixNode size      : " << sizeof(SuffixNode) << endl;
+  cout << "normal_node_data size: " << sizeof(normal_node_data) << endl;
+  cout << "end_node_data size   : " << sizeof(end_node_data) << endl;
 
   unsigned char s;
   for(;!input_file.eof();) {
@@ -39,7 +45,7 @@ int main(int argc,char ** argv) {
   st.finalise();
   st.compact();
 
-  vector<char> t;
+  vector<symbol_type> t;
   string ss = argv[2];
   cout << "searching for: " << ss << endl;
   for(size_t n=0;n<ss.size();n++) {

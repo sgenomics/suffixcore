@@ -17,6 +17,7 @@
 #define SUFFIXTREE
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
 #include <map>
@@ -24,78 +25,74 @@
 #include <stdlib.h>
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"
-#include "global_defs.h"
+#include "stringify.h"
 
-#define suffixnode_t SuffixNode&
 
 using namespace std;
 
 class SuffixTree {
 
 public:
-  SuffixTree() {
-    
-    SuffixNode root(0,-1,-1);
-    root.suffix_link = 0;
-    root.parent = 0;
-    split_count = 0;
+  SuffixTree(bool uninit=false) {
+
+    if(uninit==true) return;
+ 
+    SuffixNode::store = &store;
+   
+    SuffixNode root(0,invalid_idx,invalid_idx);
+    root.set_suffix_link(0);
+    root.set_parent(0);
     root_node = store.push_back(root);
 
     split_distance = 0;
     split_point_node     = 0;
     split_point_position = 0;
 
-    SuffixNode::end_marker_value = -1;
-    posrem=0;
-    first_insert = true;
-    first_node = 0;
+    SuffixNode::end_marker_value = invalid_idx;
     first_non_leaf_node = 0;
     first_non_leaf_n = 0;
   }
 
-  void label_all_left_most_down(vector<uint32_t> &label_these,int32_t label) {
+  void label_all_left_most_down(vector<index_type> &label_these,index_type label) {
     for(size_t n=0;n<label_these.size();n++) {
 
       suffixnode_t node = store.get(label_these[n]);
-      node.next_left_leaf = label;
+      node.set_next_left_leaf(label);
       store.set(label_these[n],node);
     }
   }
 
   bool first_is_leaf(SuffixNode &n) {
-    int32_t i = n.get_first_child();
-    if(i == -1) return false;
+    index_type i = n.get_first_child();
+    if(i == invalid_idx) return false;
 
     suffixnode_t na = store.get(i);
     return na.is_leaf();
   }
 
   bool last_is_leaf(SuffixNode &n) {
-    int32_t i = n.get_last_child();
-    if(i == -1) return false;
+    index_type i = n.get_last_child();
+    if(i == invalid_idx) return false;
 
     suffixnode_t na = store.get(i);
     return na.is_leaf();
   }
  
   void process_positions() {
-    cout << "Processing positions" << endl;
+    index_type c    = SuffixNode::root;  // start at root vertex.
+    index_type last = invalid_idx;
 
-    int c    = SuffixNode::root;  // start at root vertex.
-    int last = -1;
+    vector<index_type> unlabeled_left;
 
-    vector<uint32_t> unlabeled_left;
-
-    uint32_t current_right_most = root_node;
-    uint32_t last_right         = root_node;
+    index_type current_right_most = root_node;
+    index_type last_right         = root_node;
     for(;;) {
-      //SuffixNode c_node = store.get(c);
       suffixnode_t c_node = store.get(c);
 
       // labeling code
 
       // left labeling.
-      if(c_node.next_left_leaf == -1) unlabeled_left.push_back(c);
+      if(c_node.get_next_left_leaf() == invalid_idx) unlabeled_left.push_back(c);
 
       if(first_is_leaf(c_node)) {
 	label_all_left_most_down(unlabeled_left,c_node.get_first_child());
@@ -104,7 +101,7 @@ public:
       }
 
       // right labeling.
-      c_node.next_right_leaf = current_right_most;
+      c_node.set_next_right_leaf(current_right_most);
 
       //if(c_node.last_is_leaf()) {
       if(last_is_leaf(c_node)) {
@@ -114,54 +111,51 @@ public:
       // next_right labeling.
       if(c_node.is_leaf()) {
         suffixnode_t lr_node = store.get(last_right);
-        lr_node.next_right_leaf = c;         /// < serving a different function here.
+        lr_node.set_next_right_leaf(c);         /// < serving a different function here.
         store.set(last_right,lr_node);
 	last_right = c;
       }
 
- //     SuffixNode &cc_node = store.get(c);
-//      cc_node = c_node;
       store.set(c,c_node);
 
       // walking code
-      if(last == -1) {
+      if(last == invalid_idx) {
 
 	last = c;
-	int32_t tc = c_node.get_first_child();
-	if(tc != -1) {c = tc;} else {
+	index_type tc = c_node.get_first_child();
+	if(tc != invalid_idx) {c = tc;} else {
           if(c == root_node) return;
-	  if(tc==-1) c = c_node.get_parent();
-	  if(c==-1) {return;}
+	  if(tc==invalid_idx) c = c_node.get_parent();
+	  if(c==invalid_idx) {return;}
 	}
       } else {
-	// last != -1
 	if(c_node.is_child(last)) {
-	  int32_t tc = c_node.next_child(last);
-	  last = -1;// MOVED THIS AROUND.
-	  if(tc!=-1) { c = tc; }
-	  else       { if(c==root_node) return; last = c; c = c_node.get_parent(); if(c == -1) {return;} }
+	  index_type tc = c_node.next_child(last);
+	  last = invalid_idx;// MOVED THIS AROUND.
+	  if(tc!=invalid_idx) { c = tc; }
+	  else       { if(c==root_node) return; last = c; c = c_node.get_parent(); if(c == invalid_idx) {return;} }
 	} else {
 	  // is_child(last,c,vertexes) == false
 
 	  last=c;
-	  int tc = c_node.get_first_child();
-	  if(tc!=-1) {c =tc;}
+	  index_type tc = c_node.get_first_child();
+	  if(tc!=invalid_idx) {c =tc;}
 	  else {
             if(c == root_node) return;
 	    c = c_node.get_parent();
-	    if(c==-1) {return;}
+	    if(c==invalid_idx) {return;}
 	  }
 	}
       }
     }
   }
 
-  int find_tree_position(vector<char> ss) {
+  index_type find_tree_position(vector<symbol_type> ss) {
     // follow labels from root down, edge labels.
 
-    int current_node = store.get(SuffixNode::root).get_child(ss[0]);
+    index_type current_node = store.get(SuffixNode::root).get_child(ss[0]);
 
-    char label;
+    symbol_type label;
     if(ss.size() == 1) {
       label = 0;
     } else {
@@ -169,12 +163,13 @@ public:
     }
  
     size_t search_string_position = 0;
-    if(current_node == -1) return -1;
+    if(current_node == invalid_idx) return invalid_idx;
     for(;search_string_position < ss.size();) {
       suffixnode_t current_node_tmp = store.get(current_node);
       // follow edge label
-      for(int position=current_node_tmp.label_start;position <= current_node_tmp.get_label_end();position++) {
-        if(s[position] != ss[search_string_position]) {return -1;}
+      for(index_type position=current_node_tmp.get_label_start();position <= current_node_tmp.get_label_end_translated();position++) {
+
+        if(s[position] != ss[search_string_position]) {return invalid_idx;}
         else {
           search_string_position++;
           if(search_string_position == ss.size()) {
@@ -186,52 +181,40 @@ public:
       label = ss[search_string_position];
 
       current_node = current_node_tmp.get_child(label);
-      if(current_node == -1) return -1;
-      // current_node_tmp = store.get(current_node);
+      if(current_node == invalid_idx) return invalid_idx;
     }
 
-    return -1;
+    return invalid_idx;
   }
 
-  string get_substr(uint32_t start,uint32_t end) {
+  string get_substr(index_type start,index_type end) {
     string res;
     if(start > s.size()) return res;
     if(start > end) return res;
     if(end > s.size()) end = s.size();
     for(size_t pos=start;pos<=end;pos++) {
-     // if((pos < s.size()) && (pos >= 0)) res += s.get_uncoded(pos);
       if((pos < s.size()) && (pos >= 0)) res += s[pos];
     }
 
     return res;
   }
 
-  vector<size_t> all_occurs(string ss,size_t max_hits=-1) {
-
-    vector<char> search;
-    for(size_t n=0;n<ss.size();n++) {
-      search.push_back(ss[n]);
-    }
-
-    return all_occurs(search,max_hits);
-  }
-
-  vector<size_t> all_occurs(vector<char> ss,size_t max_hits=-1) {
+  vector<size_t> all_occurs(vector<symbol_type> ss,size_t max_hits=-1) {
     //cout << "find all occurs..." << endl;
     vector<size_t> res;
 
-//    for(size_t n=0;n<ss.size();n++) ss[n] =  transcoder.convert(ss[n]);
-    int p = find_tree_position(ss);
+    index_type p = find_tree_position(ss);
 
-    if(p == -1) {
+    if(p == invalid_idx) {
       return res;
     }
 
     // grab left and right...
 
     suffixnode_t p_tmp = store.get(p);
-    int nl = p_tmp.next_left_leaf;
-    int nr = p_tmp.next_right_leaf;
+    index_type nl = p_tmp.get_next_left_leaf();
+    index_type nr = p_tmp.get_next_right_leaf();
+
 
     if(p_tmp.is_leaf()) {
       res.push_back(s.size()-p_tmp.get_depth());
@@ -240,7 +223,7 @@ public:
 
     // itterate from nl until we reach nr
 
-    int c = nl;
+    index_type c = nl;
 
     bool stop=false;
     for(;stop==false;) {
@@ -248,11 +231,10 @@ public:
       suffixnode_t c_tmp = store.get(c);
       if(c==nr) { stop=true; }
 
-      bool nochild=true;
-      if(c_tmp.label_start != -1) { res.push_back(s.size()-c_tmp.get_depth()); nochild=false; }//TODO: err somehow convert this back in to correct location?!?
+      //bool nochild=true;
+      if(c_tmp.get_label_start() != invalid_idx) { res.push_back(s.size()-c_tmp.get_depth()); }
 
-      c = c_tmp.next_right_leaf;
-    //  c_tmp = store.get(c);
+      c = c_tmp.get_next_right_leaf();
 
       if(res.size() > max_hits) return res;
     }
@@ -260,32 +242,32 @@ public:
     return res;
   }
 
-  bool exists(vector<char> t) {
+  bool exists(vector<symbol_type> t) {
  
 //    for(size_t n=0;n<t.size();n++) t[n] = transcoder.convert(t[n]);
 
-    int res = exists_node(t);
+    index_type res = exists_node(t);
 
-    if(res == -1) return false;
+    if(res == invalid_idx) return false;
     return true;
   }
 
-  int exists_node(vector<char> t) {
+  index_type exists_node(vector<symbol_type> t) {
 
     // follow labels from root down, edge labels.
 
-    int current_node = store.get(SuffixNode::root).get_child(t[0]);
+    index_type current_node = store.get(SuffixNode::root).get_child(t[0]);
  
-    if(current_node == -1) return -1;
+    if(current_node == invalid_idx) return invalid_idx;
 
-    uint64_t search_string_position = 0;
+    index_type search_string_position = 0;
 
     for(;search_string_position < t.size();) {
       // follow edge label
 
       suffixnode_t current_node_tmp = store.get(current_node);
-      for(int position=current_node_tmp.label_start;position <= current_node_tmp.get_label_end();position++) {
-        if(s[position] != t[search_string_position]) { return -1; }
+      for(index_type position=current_node_tmp.get_label_start();position <= current_node_tmp.get_label_end_translated();position++) {
+        if(s[position] != t[search_string_position]) { return invalid_idx; }
         else {
           search_string_position++;
           if(search_string_position == t.size()) { return current_node; }
@@ -293,42 +275,41 @@ public:
       }
 
       current_node = current_node_tmp.get_child(t[search_string_position]);
-      if(current_node == -1) return -1;
-    //  current_node_tmp = store.get(current_node);
+      if(current_node == invalid_idx) return invalid_idx;
     }
 
-    return -1;
+    return invalid_idx;
   }
 
-  int extend2(int insertion_point,int symbol_index_start,int symbol_index_end,bool &split,int &fnode,int &fpos) {
+  index_type extend2(index_type insertion_point,index_type symbol_index_start,index_type symbol_index_end,bool &split,index_type &fnode,index_type &fpos) {
     fnode = insertion_point;
     fpos  = symbol_index_start;
 
     suffixnode_t insertion_point_tmp0 = store.get(insertion_point);
-    int label_start = insertion_point_tmp0.label_start;
-    int edge_length = insertion_point_tmp0.get_label_length();
+    index_type label_start = insertion_point_tmp0.get_label_start();
+    index_type edge_length = insertion_point_tmp0.get_label_length();
 
-    int insert_len = symbol_index_end - symbol_index_start;
+    index_type insert_len = symbol_index_end - symbol_index_start;
     // Check edge label
     {
       suffixnode_t insertion_point_tmp = store.get(insertion_point);
       // this means we're at the root node, it's kind of special!
-      if(insertion_point_tmp.label_start == -1) {
+      if(insertion_point_tmp.get_label_start() == invalid_idx) {
 
         // if a child exists, go to it, without consuming
-        int child = insertion_point_tmp.get_child(s[symbol_index_start]);
-        if(child != -1) {
+        index_type child = insertion_point_tmp.get_child(s[symbol_index_start]);
+        if(child != invalid_idx) {
           return extend2(child,symbol_index_start,symbol_index_end,split,fnode,fpos);
         } else {
           // if it doesn't exist add it.
           SuffixNode sn(insertion_point,symbol_index_start,0);
-          sn.label_start = symbol_index_start;
-          sn.label_end   = -1;
-          sn.suffix_link = 0;
+          sn.set_label_start(symbol_index_start);
+          sn.set_label_end(invalid_idx);
+          sn.set_suffix_link(0);
           split = true;
           sn.set_depth(insertion_point_tmp.get_depth());
 
-          int sn_idx = store.push_back(sn);
+          index_type sn_idx = store.push_back(sn);
           suffixnode_t insertion_point_tmp1 = store.get(insertion_point);
           insertion_point_tmp1.set_child(s[symbol_index_start],sn_idx);// next insert
 
@@ -342,23 +323,23 @@ public:
     if(edge_length == 0) {
       suffixnode_t insertion_point_tmp = store.get(insertion_point);
       // match at label start position?
-      if((s[insertion_point_tmp.label_start] == s[symbol_index_start])) {
+      if((s[insertion_point_tmp.get_label_start()] == s[symbol_index_start])) {
 	symbol_index_start++;
 	dontdoit=true;
       } else {
-	if((s[insertion_point_tmp.label_start] != s[symbol_index_start])) {
+	if((s[insertion_point_tmp.get_label_start()] != s[symbol_index_start])) {
 	  // mismatch at label start position - add new child to parent!
 
-	  int parent = insertion_point_tmp.get_parent();
+	  index_type parent = insertion_point_tmp.get_parent();
 	  suffixnode_t parent_tmp = store.get(parent);
-	  int child  = parent_tmp.get_child(s[symbol_index_start]);
-	  if(child == -1) {
+	  index_type child  = parent_tmp.get_child(s[symbol_index_start]);
+	  if(child == invalid_idx) {
 	    // no child here, add one.
 	    SuffixNode sn(parent,symbol_index_start,0);
-	    sn.label_start = symbol_index_start;
+	    sn.set_label_start(symbol_index_start);
 	    split=true;
 	    sn.set_depth(parent_tmp.get_depth());
-	    int sn_idx = store.push_back(sn);
+	    index_type sn_idx = store.push_back(sn);
 
 	    suffixnode_t parent_tmp1 = store.get(parent);
 	    parent_tmp1.set_child(s[symbol_index_start],sn_idx);
@@ -371,35 +352,35 @@ public:
       }
     }
 
-    int start_val =0;
+    index_type start_val =0;
     start_val = symbol_index_end - symbol_index_start; 
     // consume edge label
     if(!dontdoit)
-    for(int n=start_val;(n<=edge_length) && (n<=(insert_len));) {
+    for(index_type n=start_val;(n<=edge_length) && (n<=(insert_len));) {
       if(s[symbol_index_start+n] != s[label_start+n]) {
         // mismatch on edge label
         //Extend2 condition 1: Mismatch in edge label
 
-        int b_idx = store.push_back_norm();
-        int c_idx = store.push_back_end();
+        index_type b_idx = store.push_back_norm();
+        index_type c_idx = store.push_back_end();
 
         suffixnode_t insertion_point_tmp = store.get(insertion_point);
-        int64_t old_parent        = insertion_point_tmp.parent;
-        suffixnode_t old_parent_tmp = store.get(insertion_point_tmp.parent);
+        index_type old_parent            = insertion_point_tmp.get_parent();
+        suffixnode_t old_parent_tmp      = store.get(insertion_point_tmp.get_parent());
 
-        int64_t old_label_start = insertion_point_tmp.label_start;
+        index_type old_label_start = insertion_point_tmp.get_label_start();
 
-        suffixnode_t b = store.get(b_idx); //b(insertion_point,0,0);
-        suffixnode_t c = store.get(c_idx); //c(insertion_point,0,0);
-        b.label_start = old_label_start;
-        b.label_end   = old_label_start+n-1;
-        c.label_start = symbol_index_start+n;
-        c.label_end   = SuffixNode::end_marker;
+        suffixnode_t b = store.get(b_idx);
+        suffixnode_t c = store.get(c_idx);
+        b.set_label_start (old_label_start);
+        b.set_label_end   (old_label_start+n-1);
+        c.set_label_start (symbol_index_start+n);
+        c.set_label_end   (SuffixNode::end_marker);
 
-        insertion_point_tmp.label_start = old_label_start+n;
+        insertion_point_tmp.set_label_start(old_label_start+n);
         store.set(insertion_point,insertion_point_tmp); // WHY IS THIS REQUIRED HERE?
 
-        int old_parent_child_symbol = old_parent_tmp.find_child(insertion_point); // TODO: make constant time please?
+        index_type old_parent_child_symbol = old_parent_tmp.find_child(insertion_point); // TODO: make constant time please?
 
         old_parent_tmp.set_child(old_parent_child_symbol,b_idx);
         store.set(old_parent,old_parent_tmp);
@@ -407,11 +388,11 @@ public:
         b.set_child(s[old_label_start+n],insertion_point);
         b.set_child(s[symbol_index_start+n],c_idx);
 
-        insertion_point_tmp.parent = b_idx;
-        c.parent = b_idx;
-        b.parent = old_parent;
-        b.suffix_link = 0;// (this is pointed after the next insertion in insert)
-        c.suffix_link = 0;
+        insertion_point_tmp.set_parent(b_idx);
+        c.set_parent(b_idx);
+        b.set_parent(old_parent);
+        b.set_suffix_link(0);// (this is pointed after the next insertion in insert)
+        c.set_suffix_link(0);
 
         // ADD NODE: b_idx
         // ADD NODE: c_idx 
@@ -421,8 +402,8 @@ public:
         store.set(b_idx,b);
         store.set(c_idx,c);
 
-        if(insertion_point_tmp.label_end == SuffixNode::end_marker) { insertion_point_tmp.set_depth(b.get_depth());}
-        else                                                        { insertion_point_tmp.set_depth(b.get_depth()+insertion_point_tmp.get_label_length_r()+1);}
+        if(insertion_point_tmp.get_label_end() == SuffixNode::end_marker) { insertion_point_tmp.set_depth(b.get_depth());}
+        else                                                              { insertion_point_tmp.set_depth(b.get_depth()+insertion_point_tmp.get_label_length_r()+1);}
         store.set(insertion_point,insertion_point_tmp);
         //extend2 endpoint 3
         return c_idx;
@@ -439,7 +420,7 @@ public:
     }
 
     //Extend2 condition 2: checking children
-    int pos = symbol_index_start + edge_length + 1;
+    index_type pos = symbol_index_start + edge_length + 1;
 
     if(dontdoit) pos--;
     if(pos > symbol_index_end) {
@@ -447,22 +428,20 @@ public:
       return insertion_point;
     }
 
-    char child_sym = s[pos];
+    symbol_type child_sym = s[pos];
 
     {
       suffixnode_t insertion_point_tmp = store.get(insertion_point);
-      if(insertion_point_tmp.get_child(child_sym) == -1) {
+      if(insertion_point_tmp.get_child(child_sym) == invalid_idx) {
 
 	// we seem to get here even though insertion point has a label length of 0... how?
 	// we should replace the edge label with our own...
 
-	if(insertion_point_tmp.label_end == -1) {
+	if(insertion_point_tmp.get_label_end() == invalid_idx) {
 	  store.set(insertion_point,insertion_point_tmp);
 	  return insertion_point;
 	}
 
-	//int l = insertion_point_tmp.get_label_length_r();
-   
 	if(insertion_point_tmp.is_leaf()) {
 	  cout << "WTF it's a leaf?!?" << endl;
 	  exit(0);
@@ -472,11 +451,11 @@ public:
 
 	// if we get here we really MUST have other children.
 	SuffixNode newnode(insertion_point,pos,0);
-	newnode.label_end   = SuffixNode::end_marker;
+	newnode.set_label_end(SuffixNode::end_marker);
 
 	split=true;
 	newnode.set_depth(insertion_point_tmp.get_depth());
-	int n_idx = store.push_back(newnode);
+	index_type n_idx = store.push_back(newnode);
 
 	//ADD NODE: n_idx
 	suffixnode_t insertion_point_tmp1 = store.get(insertion_point);
@@ -505,81 +484,71 @@ public:
     }
   }
 
-  void insert(unsigned char current_symbol,bool finalise=false) {
+  void insert(symbol_type current_symbol,bool finalise=false) {
 
     s.push_back(current_symbol);
-//    if(!finalise) current_symbol = transcoder.convert(current_symbol);
-
-    
 
     SuffixNode::end_marker_value++;
 
-    int last_node=0;
-    int last_node_sl=0;
-    vector<vector<int64_t> > doall;
+    index_type last_node=0;
+//    vector<vector<index_type> > doall;
 
     last_node = first_non_leaf_node;
     bool first=true;
     bool split=false;
-    int  new_split_count = split_count;
 
-    int predict_node = 0;
-    int predict_pos = 0;
+    index_type predict_node = 0;
+    index_type predict_pos = 0;
 
     bool first_non_leaf_flag = true;
     bool at_end=false;
     bool last_at_end=false;
-    int c=0;
+    index_type c=0;
     for(size_t n=first_non_leaf_n;n<s.size();n++) {
 
       suffixnode_t last_node_tmp1 = store.get(last_node);
-      last_node_sl = last_node_tmp1.suffix_link;
 
-      int newnode;
+      index_type newnode;
 
       bool last_split=split;
       split=false;
 
-      predict_node = last_node_tmp1.suffix_link;
+      predict_node = last_node_tmp1.get_suffix_link();
       if(first) predict_node = first_non_leaf_node;
 
       suffixnode_t predict_node_t1 = store.get(predict_node);
- //     last_node_tmp    = store.get(last_node); // required?
 
-      //int l_predict_pos = predict_pos;
-      if(predict_node_t1.parent == 0) { predict_pos = n;} 
+      if(predict_node_t1.get_parent() == 0) { predict_pos = n;} 
 
       // Now need to perform 'canonisation' analog.
 
-
      // lazy canonisation
      predict_pos = n + (predict_node_t1.get_depth()-predict_node_t1.get_label_length_r())-1;
-     if((predict_node_t1.parent != 0) && (predict_node_t1.suffix_link != 0))
+     if((predict_node_t1.get_parent() != 0) && (predict_node_t1.get_suffix_link() != 0))
       for(;;) {
         suffixnode_t predict_node_c = store.get(predict_node);
 
         predict_pos = n + (predict_node_c.get_depth()-predict_node_c.get_label_length_r())-1;
-        int ins_size = s.size()-n;
-        int c_depth  = predict_node_c.get_depth();
+        index_type ins_size = s.size()-n;
+        index_type c_depth  = predict_node_c.get_depth();
         if(ins_size >= c_depth) break;
-        predict_node = predict_node_c.parent;
- //       predict_node_tmp = store.get(predict_node);
+        predict_node = predict_node_c.get_parent();
       }
 
       if(n  == (s.size()-1)) {predict_node = 0;}
 
       suffixnode_t predict_node_t2 = store.get(predict_node);
 
-      if(predict_node_t2.parent == 0) {predict_node = 0; predict_pos = n;} 
+      if(predict_node_t2.get_parent() == 0) {predict_node = 0; predict_pos = n;} 
 
-      int fnode = 0;
-      int fpos  = 0;
+      index_type fnode = 0;
+      index_type fpos  = 0;
       newnode = extend2(predict_node,predict_pos,s.size()-1,split,fnode,fpos);
       suffixnode_t newnode_tmp = store.get(newnode);
       last_at_end = at_end;
       at_end = false;
-      int ins_len = s.size()-1-n+1;
-      int lab_len = newnode_tmp.get_depth();
+      index_type ins_len = s.size()-1-n+1;
+      index_type lab_len = newnode_tmp.get_depth();
       if(ins_len == lab_len) at_end = true;
 
 
@@ -601,46 +570,36 @@ public:
 
       predict_pos = fpos;
 
-      if(split == true) {
-        new_split_count = 0;
-      }
-
       suffixnode_t last_node_tmp2 = store.get(last_node); // required.
       if((!first) && (split || (at_end && last_at_end && newnode_tmp.is_leaf()))) {
-        if(last_node_tmp2.suffix_link != newnode) {  // only perform set if there is a change
-          last_node_tmp2.suffix_link = newnode;
+        if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
+          last_node_tmp2.set_suffix_link(newnode);
           store.set(last_node,last_node_tmp2);
         }
       }
 
       if((!first) && last_split) {
-        if(last_node_tmp2.suffix_link != newnode) {  // only perform set if there is a change
-          last_node_tmp2.suffix_link = newnode;
+        if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
+          last_node_tmp2.set_suffix_link(newnode);
           store.set(last_node,last_node_tmp2);
         }
-        suffixnode_t last_node_tmp_parent = store.get(last_node_tmp2.parent);
-        if(last_node_tmp_parent.suffix_link != newnode_tmp.parent) {  // only perform set if there is a change
-          last_node_tmp_parent.suffix_link = newnode_tmp.parent;
+        suffixnode_t last_node_tmp_parent = store.get(last_node_tmp2.get_parent());
+        if(last_node_tmp_parent.get_suffix_link() != newnode_tmp.get_parent()) {  // only perform set if there is a change
+          last_node_tmp_parent.set_suffix_link(newnode_tmp.get_parent());
 
-          store.set(last_node_tmp2.parent,last_node_tmp_parent);
+          store.set(last_node_tmp2.get_parent(),last_node_tmp_parent);
         }
       }
 
       last_node = newnode; // was newnode
- ////////NOTREQUIRED?!!!!     last_node_tmp = store.get(last_node);
-      if((!split) && (c > 0) && !at_end) {
+      if((!split) && (c != invalid_idx) && !at_end) {
         first=false;
-        first_insert=false;
         break;
       }
       c++;
 
       first=false;
-      first_insert=false;
     }
-
-    split_count = new_split_count+1;
-    //validate_tree();
   }
 
   void dump() {
@@ -650,12 +609,12 @@ public:
     cout << "****************************** Tree dump complete" << endl;
   }
 
-  void dump(int n) {
+  void dump(index_type n) {
 
     suffixnode_t n_tmp = store.get(n);
 
     for(int i=0;i<symbol_size;i++) {
-      if(n_tmp.get_child(i) != -1) { 
+      if(n_tmp.get_child(i) != invalid_idx) { 
         dump_child(n_tmp.get_child(i));
         dump      (n_tmp.get_child(i));
       }
@@ -663,21 +622,21 @@ public:
   }
 
 
-  void dump_child(int n) {
+  void dump_child(index_type n) {
     suffixnode_t n_tmp = store.get(n);
     cout << "node: " << n << endl;
-    cout << "label: " << n_tmp.label_start << " ";
-    if(n_tmp.label_end == SuffixNode::end_marker) cout << n_tmp.label_end << "(" << SuffixNode::end_marker_value << ")" << endl;
-                                                  else cout << n_tmp.label_end << endl;
-    cout << "suffix_link    : " << n_tmp.suffix_link    << endl;
-    cout << "parent         : " << n_tmp.parent         << endl;
-    cout << "depth          : " << n_tmp.depth          << endl;
-    cout << "next_left_leaf : " << n_tmp.next_left_leaf << endl;
-    cout << "next_right_leaf: " << n_tmp.next_right_leaf << endl;
+    cout << "label: " << n_tmp.get_label_start() << " ";
+    if(n_tmp.get_label_end() == SuffixNode::end_marker) cout << n_tmp.get_label_end() << "(" << SuffixNode::end_marker_value << ")" << endl;
+                                                  else cout << n_tmp.get_label_end() << endl;
+   // cout << "suffix_link    : " << n_tmp.suffix_link    << endl;
+   // cout << "parent         : " << n_tmp.parent         << endl;
+   // cout << "depth          : " << n_tmp.depth          << endl;
+    cout << "next_left_leaf : " << n_tmp.get_next_left_leaf() << endl;
+    cout << "next_right_leaf: " << n_tmp.get_next_right_leaf() << endl;
 
     bool has_child=false;
     for(int i=0;i<symbol_size;i++) {
-      if(n_tmp.get_child(i) != -1) {
+      if(n_tmp.get_child(i) != invalid_idx) {
         cout << "children[" << i << "]:" << n_tmp.get_child(i) << endl; 
         has_child=true;
       }
@@ -688,55 +647,55 @@ public:
     }
   }
 
-  string get_path_label(int n) {
+  string get_path_label(index_type n) {
 
     if(n==0) return "";
 
-    vector<int64_t> parents;
-    int64_t parent = n;
+    vector<index_type> parents;
+    index_type parent = n;
     for(;parent != 0;) {
       parents.push_back(parent);
       suffixnode_t parent_tmp = store.get(parent);
-      parent = parent_tmp.parent;
+      parent = parent_tmp.get_parent();
     }
 
     string my_path_label;
-    for(int n=parents.size()-1;n>=0;n--) {
+    for(size_t n=parents.size()-1;n>=0;n--) {
 
       suffixnode_t parentsn_tmp = store.get(parents[n]);
-      int start = parentsn_tmp.label_start;
-      int end   = parentsn_tmp.get_label_end();
-      for(int i=start;i<=end;i++) {
+      index_type start = parentsn_tmp.get_label_start();
+      index_type end   = parentsn_tmp.get_label_end_translated();
+      for(index_type i=start;i<=end;i++) {
         my_path_label += s[i];
       }
     }
     return my_path_label;
   }
 
-  string get_label(int n) {
+  string get_label(index_type n) {
     if(n==0) return "";
 
     suffixnode_t n_tmp = store.get(n);
-    int start = n_tmp.label_start;
-    int end   = n_tmp.get_label_end();
+    index_type start = n_tmp.get_label_start();
+    index_type end   = n_tmp.get_label_end_translated();
     string my_path_label;
-    for(int i=start;i<=end;i++) {
+    for(index_type i=start;i<=end;i++) {
       my_path_label += s[i];
     }
     return my_path_label;
   }
 
-  bool validate_suffix_link(int64_t n,bool dump=false) {
+  bool validate_suffix_link(index_type n,bool dump=false) {
  
    // get my path label
    // get parent chain to root.
 
     suffixnode_t n_tmp = store.get(n);
     string my_path_label     = get_path_label(n) ;
-    string suffix_path_label = get_path_label(n_tmp.suffix_link);
+    string suffix_path_label = get_path_label(n_tmp.get_suffix_link());
   
-    if(dump) cout << "validating link from/to: " << n << "," << (int) n_tmp.suffix_link << " label lens: " << my_path_label.size() << "," << suffix_path_label.size() << endl;
-    if((static_cast<int>(my_path_label.size())-1) > 0) {
+    if(dump) cout << "validating link from/to: " << n << "," << (index_type) n_tmp.get_suffix_link() << " label lens: " << my_path_label.size() << "," << suffix_path_label.size() << endl;
+    if((static_cast<index_type>(my_path_label.size())-1) > 0) {
       if((suffix_path_label.size()) < ((my_path_label.size()-1))) {
 	if(dump) cout << "********************************************* SUFFIXLINK DOES NOT VALIDATE, SIZE ERROR1" << endl;
 	return false;
@@ -756,10 +715,10 @@ public:
     return true;
   }
 
-  bool validate_parent(int64_t n,bool dump=false) {
+  bool validate_parent(index_type n,bool dump=false) {
 
     suffixnode_t n_tmp = store.get(n);
-    int64_t parent =  n_tmp.parent;
+    index_type parent =  n_tmp.get_parent();
 
     suffixnode_t parent_tmp = store.get(parent);
     bool ok=false;
@@ -773,25 +732,25 @@ public:
     return true;
   }
 
-  bool validate_depth(int n,bool dump=false) {
+  bool validate_depth(index_type n,bool dump=false) {
 
     //bool valid = true;
     suffixnode_t n_tmp = store.get(n);
-    int s_depth = n_tmp.get_depth();
+    index_type s_depth = n_tmp.get_depth();
 
-    int depth = 0;
+    index_type depth = 0;
 
     bool fin=false;
 
-    if(n_tmp.suffix_link == n) fin = true;
-    for(int c=n;fin==false;) {
+    if(n_tmp.get_suffix_link() == n) fin = true;
+    for(index_type c=n;fin==false;) {
       suffixnode_t c_tmp = store.get(c);
-      if(c_tmp.suffix_link == c) fin = true;
+      if(c_tmp.get_suffix_link() == c) fin = true;
       else {
 
         depth += c_tmp.get_label_length_r()+1;
 
-        c = c_tmp.parent;
+        c = c_tmp.get_parent();
       }
     }
 
@@ -810,37 +769,48 @@ public:
   void dump_stats() {
     cout << "string size: " << s.size() << endl; 
     cout << "node count : " << store.size() << endl;
-    // size_t end_node = 0;
 
     store.stats();
-
-    cout << "Unpopulated SuffixNode size is: " << sizeof(SuffixNode) << endl;
-    cout << "Unpopulated SuffixTree size is: " << sizeof(SuffixTree) << endl;
   }
 
   bool validate_positions() {
-/*
-REQUIRES REWRITE
-    for(int64_t n=1;n!=store.last_idx();n=store.next_idx(n)) {
+
+    for(index_type n=1;n!=store.last_idx();n=store.next_idx(n)) {
 
       suffixnode_t n_tmp = store.get(n);
-      int left  = n_tmp.next_left_leaf;
-      int right = n_tmp.next_right_leaf;
 
-      suffixnode_t left_tmp = store.get(left);
-      suffixnode_t right_tmp = store.get(right);
-      if((left != -1) && (right != -1) && n_tmp.is_leaf() && left_tmp.is_leaf() && right_tmp.is_leaf()) {
-        if(left_tmp.next_right_leaf != n) { cout << "store[" << left  << "].next_right_leaf=" << left_tmp.next_right_leaf << "!=" << n << endl; return false;}
-        if(right_tmp.next_left_leaf != n) { cout << "store[" << right << "].next_left_leaf="  << left_tmp.next_left_leaf  << "!=" << n << endl; return false;}
+      if(!n_tmp.is_leaf()) {
+
+        index_type left_most=n;
+        for(;;) {
+          suffixnode_t c_tmp = store.get(left_most);
+          if(c_tmp.is_leaf()) break;
+          left_most = c_tmp.get_first_child();
+        }
+
+        index_type right_most=n;
+        for(;;) {
+          suffixnode_t c_tmp = store.get(right_most);
+          if(c_tmp.is_leaf()) break;
+          right_most = c_tmp.get_last_child();
+        }
+
+        if((left_most   == n_tmp.get_next_left_leaf()) &&
+           (right_most  == n_tmp.get_next_right_leaf())) {
+          // validate ok
+        } else {
+          cout << "ERROR: Positions validation failed for node: " << n << endl;
+          return false;
+        }
+
       }
     }
-*/
     return true;
   }
 
   bool validate_tree(bool dump=false) {
-    for(int64_t n=1;n!=store.last_idx();n=store.next_idx(n)) {
-      if(dump) cout << "validating: " << n << endl;
+    for(index_type n=1;n!=store.last_idx();n=store.next_idx(n)) {
+      //if(dump) cout << "validating: " << n << endl;
       //bool v1 = validate_depth(n,dump);
       //bool v2 = validate_suffix_link(n,dump);
       bool v3 = validate_parent(n,dump);
@@ -863,22 +833,53 @@ REQUIRES REWRITE
     store.set_compactmode(compactmode);
   }
 
+  void save_members(string filename) {
+    // write my members
+    ofstream membersfile(filename.c_str(),ios_base::app); // open for append
+    membersfile << "suffixtree_root_node="            << root_node            << endl;
+    membersfile << "suffixtree_split_point_node="     << split_point_node     << endl;
+    membersfile << "suffixtree_split_point_position=" << split_point_position << endl;
+    membersfile << "suffixtree_split_distance="       << split_distance       << endl;
+    membersfile << "suffixtree_first_non_leaf_node="  << first_non_leaf_node  << endl;
+    membersfile << "suffixtree_first_non_leaf_n="     << first_non_leaf_n     << endl;
+    membersfile.close();
+    SuffixNode::save_members(filename);
+  }
+
+  void load_members(string filename) {
+    ifstream membersfile(filename.c_str());
+  
+    for(;!membersfile.eof();) {
+      string line;
+      getline(membersfile,line);
+
+      stringstream cline(line);
+
+      string member;
+      string value;
+      getline(cline,member,'=');
+      getline(cline,value);
+
+      if(member == "suffixtree_root_nodex"           ) root_node            = convertTo<int>(value); 
+      if(member == "suffixtree_split_point_node"     ) split_point_node     = convertTo<int>(value); 
+      if(member == "suffixtree_split_point_position" ) split_point_position = convertTo<int>(value); 
+      if(member == "suffixtree_split_distance"       ) split_distance       = convertTo<int>(value); 
+      if(member == "suffixtree_first_non_leaf_node"  ) first_non_leaf_node  = convertTo<int>(value); 
+      if(member == "suffixtree_first_non_leaf_n"     ) first_non_leaf_n     = convertTo<int>(value); 
+    }
+    membersfile.close();
+    SuffixNode::load_members(filename);
+  }
+
   store_type s;
   suffixnodestore_type store;
 
-//  Transcode transcoder;
-
-  int root_node;
-  int split_point_node;      ///< Point of last insertion/split in tree (node index)
-  int split_point_position;  ///< Point of last insertion/split in tree (label position)
-  int split_distance;        ///< distance to last split point
-  int current_node;          ///< Current node in tree (active point?)
-  int posrem;
-  bool first_insert;
-  int64_t first_node;
-  int64_t split_count;
-  int first_non_leaf_node;
-  int first_non_leaf_n;
+  index_type root_node;             ///< The root node, usually 0
+  index_type split_point_node;      ///< Point of last insertion/split in tree (node index)
+  index_type split_point_position;  ///< Point of last insertion/split in tree (label position)
+  index_type split_distance;        ///< distance to last split point
+  index_type first_non_leaf_node;
+  index_type first_non_leaf_n;
 };
 
 #endif
