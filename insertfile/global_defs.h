@@ -16,6 +16,9 @@
 #ifndef GLOBALDEFS
 #define GLOBALDEFS
 
+#define index_type uint32_t
+#define invalid_idx 4294967295
+
 #define suffixnodestore_type SuffixNodeStoreMemVec
 
 //define one of these to delect a storage mode
@@ -31,5 +34,8 @@
 #define final_symbol 254
 
 #define store_type vector<symbol_type>
+#include "SuffixNodeStoreMemVec.h"
+
+#define suffixnode_t SuffixNode&
 
 #endif
