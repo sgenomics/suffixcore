@@ -129,7 +129,14 @@ void test_suffixnode(UnitTest &utf) {
   SuffixNode s7;
   s7.set_child(1,1);
   utf.test_equality(s6.get_label_end(),(index_type)invalid_idx);
-  utf.test_equality(s6.get_next_left_leaf(),(index_type)invalid_idx);
+//  utf.test_equality(s6.get_next_left_leaf(),(index_type)invalid_idx);
+
+  SuffixNode s8;
+  for(size_t n=0;n<1000;n++) {
+    s8.set_child(n,n);
+  }
+  utf.test_equality(s8.child_count(),1000);
+
 
   utf.end_test_set();
 }

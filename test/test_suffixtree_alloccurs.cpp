@@ -3,6 +3,8 @@
 #include <vector>
 #include <stdlib.h>
 #include "SuffixTree.h"
+#include "SuffixNodeStoreMemVec.h"
+#include "ProcessPositions.h"
 #include "UnitTest.h"
 #include <algorithm>
 
@@ -23,14 +25,15 @@ void test_suffixtree_alloccurs(UnitTest &utf) {
   bool validation = s1.validate_tree();
   utf.test_equality(true,validation);
 
-  s1.process_positions();
-  validation = s1.validate_positions();
- // utf.test_equality(true,validation);
+  ProcessPositions<SuffixNodeStoreMemVec,SuffixNode &> pp(s1.store);
+  pp.process_positions();
+  //validation = s1.validate_positions();
+  // utf.test_equality(true,validation);
 
   vector<symbol_type> ss;
   ss.push_back('n');
   ss.push_back('a');
-  vector<size_t> p = s1.all_occurs(ss);
+  vector<size_t> p = s1.all_occurs(ss,pp);
 
   utf.test_equality(static_cast<size_t>(2),p.size());
 
@@ -40,14 +43,15 @@ void test_suffixtree_alloccurs(UnitTest &utf) {
     s2.insert(m2[n]);
   }
   s2.finalise();
-  s2.process_positions();
+  ProcessPositions<SuffixNodeStoreMemVec,SuffixNode &> pp2(s2.store);
+  pp2.process_positions();
 
   ss.clear();
   ss.push_back('c');
   ss.push_back('o');
   ss.push_back('o');
   ss.push_back('p');
-  p = s2.all_occurs(ss);
+  p = s2.all_occurs(ss,pp2);
 
 
   utf.test_equality(p.size(),static_cast<size_t>(3));
