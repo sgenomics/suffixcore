@@ -1,0 +1,3 @@
+[submodule "tialloc"]
+	path = tialloc
+	url = git://github.com/new299/tialloc.git
