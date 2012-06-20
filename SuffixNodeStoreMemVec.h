@@ -32,6 +32,10 @@ class SuffixNodeStoreMemVec {
 
 public:
   SuffixNodeStoreMemVec();
+  ~SuffixNodeStoreMemVec() {
+     free(storage_area);
+  }
+
   void set_compactmode(bool compact_mode);
   index_type push_back_norm();
   index_type push_back_end();
@@ -44,6 +48,7 @@ public:
   void stats();
   void force_compact();
   void compact();
+  void dump();
 
   SuffixNode *storage_area;
   index_type  storage_area_size;

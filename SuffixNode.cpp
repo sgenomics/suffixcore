@@ -19,5 +19,6 @@
 index_type SuffixNode::end_marker = invalid_idx;
 index_type SuffixNode::end_marker_value = -1;
 index_type SuffixNode::root = 0;
+store_type *SuffixNode::s = 0;
 suffixnodestore_type *SuffixNode::store = 0;
   

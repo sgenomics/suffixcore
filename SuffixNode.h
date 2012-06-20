@@ -45,9 +45,7 @@ public:
   index_type m_parent;
   index_type m_suffix_link;
   index_type m_label_start;
-  index_type m_next_right_leaf;
   index_type m_depth;
-  index_type m_next_left_leaf;
   index_type m_label_end;
 } __attribute__((__packed__));
 
@@ -56,7 +54,6 @@ public:
   index_type m_parent;
   index_type m_suffix_link;
   index_type m_label_start;
-  index_type m_next_right_leaf;
 } __attribute__((__packed__));
 
 class SuffixNode {
@@ -90,16 +87,12 @@ public:
     set_suffix_link(0);
 
     set_label_end       (invalid_idx);
-    set_next_left_leaf  (invalid_idx);
-    set_next_right_leaf (invalid_idx);
   }
 
   void clear() {
     set_suffix_link(0);
 
     set_label_end       (invalid_idx);
-    set_next_left_leaf  (invalid_idx);
-    set_next_right_leaf (invalid_idx);
   }
 
   ~SuffixNode() {
@@ -240,22 +233,18 @@ public:
     for(size_t n=0;n<get_symbols_size();n++) { if(get_symbol_by_idx(n).symbol != other.get_symbol_by_idx(n).symbol) {if(dump)  cout << "children match failure" << endl; return false; }    }
 
     if(get_suffix_link()     != other.get_suffix_link())    { if(dump)  cout << "suffix_link match failure" << endl;     return false; }
-    if(get_next_left_leaf()  != other.get_next_left_leaf()) { if(dump)  cout << "next_left_leaf match failure" << endl;  return false; }
-    if(get_next_right_leaf() != other.get_next_right_leaf()){ if(dump)  cout << "next_right_leaf match failure" << endl; return false; }
     if(get_depth_raw()       != other.get_depth_raw())      { if(dump)  cout << "depth match failure" << endl;           return false; }
 
     if(dump) cout << "suffixnodes identical" << endl;
     return true;
   }
 
-  void dump() {
+  void dump() const {
     cout << "SuffixNode" << endl;
     cout << "parent         : " << get_parent() << endl;
     cout << "label_start    : " << get_label_start() << endl;
     cout << "label_end      : " << get_label_end() << endl;
     cout << "suffix_link    : " << get_suffix_link() << endl;
-    cout << "next_left_leaf : " << get_next_left_leaf() << endl;
-    cout << "next_right_leaf: " << get_next_right_leaf() << endl;
     cout << "depth          : " << get_depth_raw() << endl;
     cout << "children      : ";
     for(size_t n=0;n<get_symbols_size();n++) cout << (int) get_symbol_by_idx(n).symbol << "," << get_symbol_by_idx(n).index << " ";
@@ -270,8 +259,6 @@ public:
     set_label_start     (other.get_label_start());
     set_label_end       (other.get_label_end());
     set_suffix_link     (other.get_suffix_link());
-    set_next_left_leaf  (other.get_next_left_leaf());
-    set_next_right_leaf (other.get_next_right_leaf());
     set_depth_raw       (other.get_depth_raw());
 
     copy_children(other);
@@ -349,7 +336,7 @@ public:
   }
 
   index_type get_label_start() const {
-    return ((   end_node_data *)data)->m_label_start;
+    return ((end_node_data *)data)->m_label_start;
   }
 
   void set_label_start(index_type label_start_in) {
@@ -367,25 +354,6 @@ public:
     if(get_data_type() == 2) if((label_end_in != invalid_idx) && (label_end_in != end_marker)) {
       cout << "ERROR SETTING LABEL_END ON END NODE" << endl;
     }
-  }
-
-  index_type get_next_left_leaf() const {
-    if(get_data_type() == 1) return ((normal_node_data *)data)->m_next_left_leaf;
-    if(get_data_type() == 2) return ((   end_node_data *)data)->m_next_right_leaf;
-    return invalid_idx;
-  }
-
-  void set_next_left_leaf(index_type next_left_leaf_in) {
-    if(get_data_type() == 1) ((normal_node_data *)data)->m_next_left_leaf = next_left_leaf_in;
-  }
-
-  index_type get_next_right_leaf() const {
-    return ((   end_node_data *)data)->m_next_right_leaf;
-    return invalid_idx;
-  }
-
-  void set_next_right_leaf(index_type next_right_leaf_in) {
-    ((   end_node_data *)data)->m_next_right_leaf = next_right_leaf_in;
   }
 
   // Symbols access
@@ -497,8 +465,6 @@ public:
   }
  
   void reformat_endnode_to_normalnode() {
-    set_next_left_leaf (invalid_idx);
-    set_label_end      (invalid_idx);
     set_symbols_size   (0);
   }
 
@@ -564,6 +530,7 @@ private:
 
 public:
   static suffixnodestore_type *store;
+  static store_type *s;
   static index_type end_marker;
   static index_type end_marker_value;
   static index_type root;

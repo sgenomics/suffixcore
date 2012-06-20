@@ -13,13 +13,14 @@
  * Can modify source-code but cannot distribute modifications (derivative works).
  */
 
-#include "global_defs.h"
 #include <vector>
 #include <map>
 #include <algorithm>
 #include "tialloc.h"
+#include "global_defs.h"
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"
+#include <malloc.h>
 
 using namespace std;
 
@@ -38,8 +39,8 @@ void SuffixNodeStoreMemVec::set_compactmode(bool compact_mode) {
 }
 
 index_type SuffixNodeStoreMemVec::push_back_norm() {
-  SuffixNode s;
-  return push_back(s,2);
+  SuffixNode s(2);
+  return push_back(s);
 }
 
 index_type SuffixNodeStoreMemVec::push_back_end() {
@@ -51,15 +52,23 @@ index_type SuffixNodeStoreMemVec::push_back(SuffixNode &s,int resize) {
 
   if(storage_area_real_size > storage_area_size) {
     storage_area[storage_area_size].wipe();
-    storage_area[storage_area_size] = s;
+    //storage_area[storage_area_size] = s;
+    storage_area[storage_area_size].set_data(s.get_data());
+    s.set_data(0);
+
     if(resize > 0) storage_area[storage_area_size].resize_for_symbols(resize);
     storage_area_size++;
   } else {
     storage_area_real_size += 10000;
     storage_area = (SuffixNode *) realloc(storage_area,storage_area_real_size*(sizeof(SuffixNode)));
     storage_area[storage_area_size].wipe();
-    storage_area[storage_area_size] = s;
-    if(resize > 0) storage_area[storage_area_size].resize_for_symbols(resize);
+    //storage_area[storage_area_size] = s;
+
+    storage_area[storage_area_size].set_data(s.get_data());
+    s.set_data(0);
+
+
+    //if(resize > 0) storage_area[storage_area_size].resize_for_symbols(resize);
     storage_area_size++;
   }
 
@@ -90,6 +99,7 @@ void SuffixNodeStoreMemVec::stats() {
   int child_2=0;
   int child_3=0;
   cout << "Storage area size: " << storage_area_size << endl;
+  cout << "malloc_usable size reports: " << malloc_usable_size(storage_area) << endl;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].child_count() == 2) child_2++;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].child_count() == 3) child_3++;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].is_leaf()) leaf_count++;
@@ -103,3 +113,20 @@ void SuffixNodeStoreMemVec::force_compact() {
 
 void SuffixNodeStoreMemVec::compact() {
 }
+
+void SuffixNodeStoreMemVec::dump() {
+
+  for(size_t n=0;n<size();n++) {
+    SuffixNode i = get(n);
+    cout << "node " << n << " parent: " << i.get_parent() << endl;
+    size_t child_count = i.child_count();
+    cout << "child count: " << child_count << endl;
+    cout << "children: ";
+    for(size_t n=0;n<child_count;n++) {
+      cout << i.get_symbol_by_idx(n).symbol << "," << i.get_symbol_by_idx(n).index << " ";
+    }
+    cout << endl;
+  }
+
+}
+

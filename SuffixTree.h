@@ -26,7 +26,7 @@
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"
 #include "stringify.h"
-
+#include "ProcessPositions.h"
 
 using namespace std;
 
@@ -38,6 +38,7 @@ public:
     if(uninit==true) return;
  
     SuffixNode::store = &store;
+    SuffixNode::s     = &s;
    
     SuffixNode root(0,invalid_idx,invalid_idx);
     root.set_suffix_link(0);
@@ -53,102 +54,6 @@ public:
     first_non_leaf_n = 0;
   }
 
-  void label_all_left_most_down(vector<index_type> &label_these,index_type label) {
-    for(size_t n=0;n<label_these.size();n++) {
-
-      suffixnode_t node = store.get(label_these[n]);
-      node.set_next_left_leaf(label);
-      store.set(label_these[n],node);
-    }
-  }
-
-  bool first_is_leaf(SuffixNode &n) {
-    index_type i = n.get_first_child();
-    if(i == invalid_idx) return false;
-
-    suffixnode_t na = store.get(i);
-    return na.is_leaf();
-  }
-
-  bool last_is_leaf(SuffixNode &n) {
-    index_type i = n.get_last_child();
-    if(i == invalid_idx) return false;
-
-    suffixnode_t na = store.get(i);
-    return na.is_leaf();
-  }
- 
-  void process_positions() {
-    index_type c    = SuffixNode::root;  // start at root vertex.
-    index_type last = invalid_idx;
-
-    vector<index_type> unlabeled_left;
-
-    index_type current_right_most = root_node;
-    index_type last_right         = root_node;
-    for(;;) {
-      suffixnode_t c_node = store.get(c);
-
-      // labeling code
-
-      // left labeling.
-      if(c_node.get_next_left_leaf() == invalid_idx) unlabeled_left.push_back(c);
-
-      if(first_is_leaf(c_node)) {
-	label_all_left_most_down(unlabeled_left,c_node.get_first_child());
-	unlabeled_left.clear();
-        // c_node = store.get(c); // WHY WAS THIS REQUIRED?
-      }
-
-      // right labeling.
-      c_node.set_next_right_leaf(current_right_most);
-
-      //if(c_node.last_is_leaf()) {
-      if(last_is_leaf(c_node)) {
-	current_right_most = c_node.get_last_child();
-      }
-
-      // next_right labeling.
-      if(c_node.is_leaf()) {
-        suffixnode_t lr_node = store.get(last_right);
-        lr_node.set_next_right_leaf(c);         /// < serving a different function here.
-        store.set(last_right,lr_node);
-	last_right = c;
-      }
-
-      store.set(c,c_node);
-
-      // walking code
-      if(last == invalid_idx) {
-
-	last = c;
-	index_type tc = c_node.get_first_child();
-	if(tc != invalid_idx) {c = tc;} else {
-          if(c == root_node) return;
-	  if(tc==invalid_idx) c = c_node.get_parent();
-	  if(c==invalid_idx) {return;}
-	}
-      } else {
-	if(c_node.is_child(last)) {
-	  index_type tc = c_node.next_child(last);
-	  last = invalid_idx;// MOVED THIS AROUND.
-	  if(tc!=invalid_idx) { c = tc; }
-	  else       { if(c==root_node) return; last = c; c = c_node.get_parent(); if(c == invalid_idx) {return;} }
-	} else {
-	  // is_child(last,c,vertexes) == false
-
-	  last=c;
-	  index_type tc = c_node.get_first_child();
-	  if(tc!=invalid_idx) {c =tc;}
-	  else {
-            if(c == root_node) return;
-	    c = c_node.get_parent();
-	    if(c==invalid_idx) {return;}
-	  }
-	}
-      }
-    }
-  }
 
   index_type find_tree_position(vector<symbol_type> ss) {
     // follow labels from root down, edge labels.
@@ -199,7 +104,7 @@ public:
     return res;
   }
 
-  vector<size_t> all_occurs(vector<symbol_type> ss,size_t max_hits=-1) {
+  vector<size_t> all_occurs(vector<symbol_type> ss,ProcessPositions<suffixnodestore_type,suffixnode_t> &propos,size_t max_hits=-1) {
     //cout << "find all occurs..." << endl;
     vector<size_t> res;
 
@@ -212,8 +117,9 @@ public:
     // grab left and right...
 
     suffixnode_t p_tmp = store.get(p);
-    index_type nl = p_tmp.get_next_left_leaf();
-    index_type nr = p_tmp.get_next_right_leaf();
+    
+    index_type nl = propos.get_next_left_leaf(p);
+    index_type nr = propos.get_next_right_leaf(p);
 
 
     if(p_tmp.is_leaf()) {
@@ -231,10 +137,9 @@ public:
       suffixnode_t c_tmp = store.get(c);
       if(c==nr) { stop=true; }
 
-      //bool nochild=true;
       if(c_tmp.get_label_start() != invalid_idx) { res.push_back(s.size()-c_tmp.get_depth()); }
 
-      c = c_tmp.get_next_right_leaf();
+      c = propos.get_next_right_leaf(c);
 
       if(res.size() > max_hits) return res;
     }
@@ -243,9 +148,6 @@ public:
   }
 
   bool exists(vector<symbol_type> t) {
- 
-//    for(size_t n=0;n<t.size();n++) t[n] = transcoder.convert(t[n]);
-
     index_type res = exists_node(t);
 
     if(res == invalid_idx) return false;
@@ -572,23 +474,23 @@ public:
 
       suffixnode_t last_node_tmp2 = store.get(last_node); // required.
       if((!first) && (split || (at_end && last_at_end && newnode_tmp.is_leaf()))) {
-        if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
+        //if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
           last_node_tmp2.set_suffix_link(newnode);
           store.set(last_node,last_node_tmp2);
-        }
+        //}
       }
 
       if((!first) && last_split) {
-        if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
+ //       if(last_node_tmp2.get_suffix_link() != newnode) {  // only perform set if there is a change
           last_node_tmp2.set_suffix_link(newnode);
           store.set(last_node,last_node_tmp2);
-        }
+ //       }
         suffixnode_t last_node_tmp_parent = store.get(last_node_tmp2.get_parent());
-        if(last_node_tmp_parent.get_suffix_link() != newnode_tmp.get_parent()) {  // only perform set if there is a change
+        //if(last_node_tmp_parent.get_suffix_link() != newnode_tmp.get_parent()) {  // only perform set if there is a change
           last_node_tmp_parent.set_suffix_link(newnode_tmp.get_parent());
 
           store.set(last_node_tmp2.get_parent(),last_node_tmp_parent);
-        }
+        //}
       }
 
       last_node = newnode; // was newnode
@@ -631,8 +533,6 @@ public:
    // cout << "suffix_link    : " << n_tmp.suffix_link    << endl;
    // cout << "parent         : " << n_tmp.parent         << endl;
    // cout << "depth          : " << n_tmp.depth          << endl;
-    cout << "next_left_leaf : " << n_tmp.get_next_left_leaf() << endl;
-    cout << "next_right_leaf: " << n_tmp.get_next_right_leaf() << endl;
 
     bool has_child=false;
     for(int i=0;i<symbol_size;i++) {
@@ -771,41 +671,6 @@ public:
     cout << "node count : " << store.size() << endl;
 
     store.stats();
-  }
-
-  bool validate_positions() {
-
-    for(index_type n=1;n!=store.last_idx();n=store.next_idx(n)) {
-
-      suffixnode_t n_tmp = store.get(n);
-
-      if(!n_tmp.is_leaf()) {
-
-        index_type left_most=n;
-        for(;;) {
-          suffixnode_t c_tmp = store.get(left_most);
-          if(c_tmp.is_leaf()) break;
-          left_most = c_tmp.get_first_child();
-        }
-
-        index_type right_most=n;
-        for(;;) {
-          suffixnode_t c_tmp = store.get(right_most);
-          if(c_tmp.is_leaf()) break;
-          right_most = c_tmp.get_last_child();
-        }
-
-        if((left_most   == n_tmp.get_next_left_leaf()) &&
-           (right_most  == n_tmp.get_next_right_leaf())) {
-          // validate ok
-        } else {
-          cout << "ERROR: Positions validation failed for node: " << n << endl;
-          return false;
-        }
-
-      }
-    }
-    return true;
   }
 
   bool validate_tree(bool dump=false) {
