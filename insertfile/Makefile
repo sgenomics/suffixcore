@@ -12,5 +12,5 @@
 # Commercial use is allowed.
 # Can modify source-code but cannot distribute modifications (derivative works).
 
-insertfile: insertfile.cpp ../SuffixTree.h ../SuffixNode.h *.h *.cpp
-	g++ -O3 insertfile.cpp -I. -I.. ../SuffixNodeStoreMemVec.cpp ../tialloc/tialloc.cpp ../SuffixNode.cpp -I../tialloc -o insertfile
+insertfile: insertfile.cpp SuffixTree.h SuffixNode.h *.h *.cpp
+	g++ -m32 -O3 insertfile.cpp SuffixNodeStoreMemVec.cpp ./tialloc/tialloc.cpp ./SuffixNode.cpp -I./tialloc -o insertfile

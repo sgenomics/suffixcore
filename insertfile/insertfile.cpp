@@ -21,7 +21,7 @@
 #include "SuffixTree.h"
 #include <stdint.h>
 #include <fstream>
-//#include "SearchTrans.h"
+#include "SearchTrans.h"
 
 using namespace std;
 
@@ -57,12 +57,12 @@ int main(int argc,char ** argv) {
   if(r == false) cout << "not found" << endl;
 
   //st.validate_tree(true);
-  //st.process_positions();
-  //vector<size_t> poss = st.all_occurs(t);
+  st.process_positions();
+  vector<size_t> poss = st.all_occurs(t);
 
   st.dump_stats();
 
   //tialloc::instance()->dump_stats();
 
-  //for(int n=0;n<poss.size();n++) cout << "position: " << poss[n] << endl;
+  for(int n=0;n<poss.size();n++) cout << "position: " << poss[n] << endl;
 }
