@@ -127,6 +127,5 @@ void SuffixNodeStoreMemVec::dump() {
     }
     cout << endl;
   }
-
 }
 
