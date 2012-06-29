@@ -25,17 +25,17 @@
 #define object_store_type ObjectStoreMemVec
 
 //define one of these to select a memory allocator
-//#define use_malloc 1
 #define use_tialloc 1
 
-#define alphabet_size  255
+#define alphabet_size  65534
 #define symbol_type uint16_t
-#define symbol_size  255
-#define final_symbol 254
+#define symbol_size  65535
+#define final_symbol 65535
+#define suffixnode_t SuffixNode&
+#define searchtrans_store_type vector<uint8_t>
+#define positions_store vector<positions>
 
 #define store_type vector<symbol_type>
 #include "SuffixNodeStoreMemVec.h"
-
-#define suffixnode_t SuffixNode&
 
 #endif

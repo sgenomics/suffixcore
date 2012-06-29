@@ -736,6 +736,23 @@ public:
     SuffixNode::load_members(filename);
   }
 
+  vector<symbol_type> lrs() {
+    size_t max    =0;
+    size_t max_idx=0;
+
+    for(size_t n=0;n<store.size();n++) {
+      if(store.get(n).get_depth() > max) { max=store.get(n).get_depth(); max_idx = n; }
+    }
+
+    vector<symbol_type> lrs;
+    index_type depth = store.get(max_idx).get_depth();
+    index_type start = store.get(max_idx).get_label_start();
+    for(index_type n=start-depth;n<=start;n++) {
+      lrs.push_back(s[n]);
+    }
+    return lrs;
+  }
+
   store_type s;
   suffixnodestore_type store;
 
