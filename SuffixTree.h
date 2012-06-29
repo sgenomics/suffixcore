@@ -741,13 +741,16 @@ public:
     size_t max_idx=0;
 
     for(size_t n=0;n<store.size();n++) {
-      if(store.get(n).get_depth() > max) { max=store.get(n).get_depth(); max_idx = n; }
+      if((store.get(n).get_depth() > max) && (!store.get(n).is_leaf())) { max=store.get(n).get_depth(); max_idx = n; }
     }
+    cout << "max depth: " << max_idx << " " << max << endl;
 
     vector<symbol_type> lrs;
     index_type depth = store.get(max_idx).get_depth();
-    index_type start = store.get(max_idx).get_label_start();
-    for(index_type n=start-depth;n<=start;n++) {
+    index_type end   = store.get(max_idx).get_label_end();
+    cout << "end: " << end << endl;
+    cout << "depth: " << depth << endl;
+    for(index_type n=end-depth+1;n<=end;n++) {
       lrs.push_back(s[n]);
     }
     return lrs;

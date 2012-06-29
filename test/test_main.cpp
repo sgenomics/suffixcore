@@ -19,7 +19,7 @@ int main(int argc,char ** argv) {
 
   test_suffixnode(utf);
   test_suffixtree_simple(utf);
- // test_suffixtree_lrs(utf);
+  test_suffixtree_lrs(utf);
   test_suffixtree_processpositions(utf);
   test_suffixtree_alloccurs(utf);
   test_suffixtree_random(utf);
