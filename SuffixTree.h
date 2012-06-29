@@ -622,7 +622,7 @@ public:
 
     suffixnode_t parent_tmp = store.get(parent);
     bool ok=false;
-    for(int i=0;i<symbol_size;i++) { if(parent_tmp.get_child(i) == n) ok = true; }
+    if(parent_tmp.is_child(n)) ok = true;
 
     if(n == 0) ok = true;
     if(ok != true) {
