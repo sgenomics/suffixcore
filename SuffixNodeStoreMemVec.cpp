@@ -94,9 +94,9 @@ index_type SuffixNodeStoreMemVec::last_idx() {
 }
 
 void SuffixNodeStoreMemVec::stats() {
-  int leaf_count=0;
-  int child_2=0;
-  int child_3=0;
+  size_t leaf_count=0;
+  size_t child_2=0;
+  size_t child_3=0;
   cout << "Storage area size: " << storage_area_size << endl;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].child_count() == 2) child_2++;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].child_count() == 3) child_3++;
@@ -125,6 +125,5 @@ void SuffixNodeStoreMemVec::dump() {
     }
     cout << endl;
   }
-
 }
 
