@@ -20,7 +20,6 @@
 #include "global_defs.h"
 #include "SuffixNodeStoreMemVec.h"
 #include "SuffixNode.h"
-#include <malloc.h>
 
 using namespace std;
 
@@ -99,7 +98,6 @@ void SuffixNodeStoreMemVec::stats() {
   int child_2=0;
   int child_3=0;
   cout << "Storage area size: " << storage_area_size << endl;
-  cout << "malloc_usable size reports: " << malloc_usable_size(storage_area) << endl;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].child_count() == 2) child_2++;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].child_count() == 3) child_3++;
   for(size_t n=0;n<storage_area_size;n++) if(storage_area[n].is_leaf()) leaf_count++;
