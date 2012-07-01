@@ -16,8 +16,8 @@
 #ifndef GLOBALDEFS
 #define GLOBALDEFS
 
-#define index_type uint16_t
-#define invalid_idx 65535
+#define index_type uint32_t
+#define invalid_idx 4294967295
 
 #define suffixnodestore_type SuffixNodeStoreMemVec
 

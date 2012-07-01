@@ -170,8 +170,8 @@ public:
       return;
     }
 
-    int child = child_local_idx(n);
-    if(child != -1) {
+    index_type child = child_local_idx(n);
+    if(child != invalid_idx) {
       if(m != invalid_idx) {
         get_symbol_by_idx(child).index = m;
       } else {
