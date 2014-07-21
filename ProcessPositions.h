@@ -75,7 +75,7 @@ public:
       sn_t c_node = m_store.get(c);
       visit_count++;
       //cout << "c: " << c << endl;
-      if(visit_count%10000 == 0) cout << "visit_count: " << visit_count << endl;
+      //if(visit_count%10000 == 0) cout << "visit_count: " << visit_count << endl;
       // labeling code
 
       // left labeling.
